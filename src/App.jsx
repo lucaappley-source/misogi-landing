@@ -1,67 +1,801 @@
-import { useState, useEffect, useRef } from "react";
-import { Briefcase, Wallet, Activity, Users, Heart, BookOpen, Palette, ArrowRight, Check, Copy, Crown, Star, Shield, Zap, Target, Layers } from "lucide-react";
+import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  Activity,
+  ArrowRight,
+  BookOpen,
+  Briefcase,
+  CheckCircle2,
+  Crown,
+  Heart,
+  Palette,
+  RotateCcw,
+  Users,
+  Wallet,
+} from "lucide-react";
+
+const GOLD = "#D4A84B";
+const BG = "#030303";
+const PANEL = "rgba(255,255,255,0.03)";
+const BORDER = "rgba(255,255,255,0.08)";
+const MUTED = "#737373";
 
 const PILLARS = [
-  { key:"business",name:"Business",fullName:"Business & Career",hex:"#6B8CAE",Icon:Briefcase,questions:[{q:"How fulfilled are you in your current career?",labels:["Miserable","Unfulfilled","Okay","Good","Thriving"]},{q:"How much progress are you making toward your professional goals?",labels:["None","Very little","Some","Solid","Rapid"]}]},
-  { key:"finances",name:"Finances",fullName:"Finances",hex:"#7A9E8C",Icon:Wallet,questions:[{q:"How in control of your finances do you feel?",labels:["Drowning","Stressed","Coping","Comfortable","Free"]},{q:"How consistently are you building wealth or reducing debt?",labels:["Not at all","Rarely","Sometimes","Often","Always"]}]},
-  { key:"health",name:"Health",fullName:"Health & Fitness",hex:"#B07A7A",Icon:Activity,questions:[{q:"How consistent is your exercise routine?",labels:["Nonexistent","Sporadic","Okay","Regular","Daily"]},{q:"How would you rate your daily energy levels?",labels:["Exhausted","Low","Average","Good","Electric"]}]},
-  { key:"family",name:"Family",fullName:"Family & Friends",hex:"#8B85AA",Icon:Users,questions:[{q:"How strong are your closest relationships?",labels:["Isolated","Distant","Okay","Close","Unbreakable"]},{q:"How often do you invest quality time in people you love?",labels:["Never","Rarely","Monthly","Weekly","Daily"]}]},
-  { key:"romance",name:"Romance",fullName:"Romance & Love",hex:"#A0788E",Icon:Heart,questions:[{q:"How satisfied are you with your romantic life?",labels:["Empty","Lonely","Okay","Happy","Deeply fulfilled"]},{q:"How present and intentional are you in this area?",labels:["Avoidant","Passive","Thinking about it","Working on it","Fully committed"]}]},
-  { key:"growth",name:"Growth",fullName:"Personal Growth",hex:"#A09570",Icon:BookOpen,questions:[{q:"How actively are you learning and developing yourself?",labels:["Stagnant","Rarely","Sometimes","Often","Constantly"]},{q:"How connected do you feel to your purpose?",labels:["Lost","Searching","Glimpses","Clear","On fire"]}]},
-  { key:"fun",name:"Fun",fullName:"Fun & Creation",hex:"#A0845A",Icon:Palette,questions:[{q:"How much joy and play is in your life right now?",labels:["None","Very little","Some","Good amount","Overflowing"]},{q:"How often do you make time for hobbies or creative pursuits?",labels:["Never","Rarely","Monthly","Weekly","Daily"]}]},
+  {
+    key: "business",
+    name: "Business",
+    fullName: "Business & Career",
+    hex: "#6B8CAE",
+    Icon: Briefcase,
+    questions: [
+      {
+        q: "How fulfilled are you in your current career?",
+        labels: ["Miserable", "Unfulfilled", "Okay", "Good", "Thriving"],
+      },
+      {
+        q: "How much progress are you making toward your professional goals?",
+        labels: ["None", "Very little", "Some", "Solid", "Rapid"],
+      },
+    ],
+  },
+  {
+    key: "finances",
+    name: "Finances",
+    fullName: "Finances",
+    hex: "#7A9E8C",
+    Icon: Wallet,
+    questions: [
+      {
+        q: "How in control of your finances do you feel?",
+        labels: ["Drowning", "Stressed", "Coping", "Comfortable", "Free"],
+      },
+      {
+        q: "How consistently are you building wealth or reducing debt?",
+        labels: ["Not at all", "Rarely", "Sometimes", "Often", "Always"],
+      },
+    ],
+  },
+  {
+    key: "health",
+    name: "Health",
+    fullName: "Health & Fitness",
+    hex: "#B07A7A",
+    Icon: Activity,
+    questions: [
+      {
+        q: "How consistent is your exercise routine?",
+        labels: ["Nonexistent", "Sporadic", "Okay", "Regular", "Daily"],
+      },
+      {
+        q: "How would you rate your daily energy levels?",
+        labels: ["Exhausted", "Low", "Average", "Good", "Electric"],
+      },
+    ],
+  },
+  {
+    key: "family",
+    name: "Family",
+    fullName: "Family & Friends",
+    hex: "#8B85AA",
+    Icon: Users,
+    questions: [
+      {
+        q: "How strong are your closest relationships?",
+        labels: ["Isolated", "Distant", "Okay", "Close", "Unbreakable"],
+      },
+      {
+        q: "How often do you invest quality time in people you love?",
+        labels: ["Never", "Rarely", "Monthly", "Weekly", "Daily"],
+      },
+    ],
+  },
+  {
+    key: "romance",
+    name: "Romance",
+    fullName: "Romance & Love",
+    hex: "#A0788E",
+    Icon: Heart,
+    questions: [
+      {
+        q: "How satisfied are you with your romantic life?",
+        labels: ["Empty", "Lonely", "Okay", "Happy", "Deeply fulfilled"],
+      },
+      {
+        q: "How present and intentional are you in this area?",
+        labels: ["Avoidant", "Passive", "Thinking about it", "Working on it", "Fully committed"],
+      },
+    ],
+  },
+  {
+    key: "growth",
+    name: "Growth",
+    fullName: "Personal Growth",
+    hex: "#A09570",
+    Icon: BookOpen,
+    questions: [
+      {
+        q: "How actively are you learning and developing yourself?",
+        labels: ["Stagnant", "Rarely", "Sometimes", "Often", "Constantly"],
+      },
+      {
+        q: "How connected do you feel to your purpose?",
+        labels: ["Lost", "Searching", "Glimpses", "Clear", "On fire"],
+      },
+    ],
+  },
+  {
+    key: "fun",
+    name: "Fun",
+    fullName: "Fun & Creation",
+    hex: "#A0845A",
+    Icon: Palette,
+    questions: [
+      {
+        q: "How much joy and play is in your life right now?",
+        labels: ["None", "Very little", "Some", "Good amount", "Overflowing"],
+      },
+      {
+        q: "How often do you make time for hobbies or creative pursuits?",
+        labels: ["Never", "Rarely", "Monthly", "Weekly", "Daily"],
+      },
+    ],
+  },
 ];
 
-const TIERS = [{label:"Founding 100",count:100,active:true,icon:Crown},{label:"First 1,000",count:1000,active:false,icon:Star},{label:"10,000",count:10000,active:false,icon:Shield},{label:"100,000",count:100000,active:false,icon:null}];
+const STORAGE_KEY = "misogi-audit-answers";
+const REDIRECT_FLAG = "misogi_subscribed";
 
-function BreathingRadar({ size=280 }) {
-  const [offsets,setOffsets]=useState([0,0,0,0,0,0,0]);
-  const scores=[8.2,7.5,6.8,7.0,8.5,7.2,9.0];
-  useEffect(()=>{const sp=[0.7,1.1,0.5,0.9,1.3,0.6,1.0],ph=[0,1.8,3.6,0.9,2.7,4.5,1.4],am=[1.2,0.9,1.4,1.0,1.1,1.3,0.8];let raf;const tick=(ts)=>{const t=ts/1000;setOffsets(sp.map((s,i)=>Math.sin(t*s+ph[i])*am[i]));raf=requestAnimationFrame(tick);};raf=requestAnimationFrame(tick);return()=>cancelAnimationFrame(raf);},[]);
-  const cx=size/2,cy=size/2,r=size*0.28,n=7;const live=scores.map((s,i)=>Math.max(1,Math.min(10,s+offsets[i])));
-  const pt=(i,v)=>{const a=(Math.PI*2*i)/n-Math.PI/2;const d=(v/10)*r;return[cx+d*Math.cos(a),cy+d*Math.sin(a)];};
-  const rpt=(i,s)=>{const a=(Math.PI*2*i)/n-Math.PI/2;const d=s*r;return[cx+d*Math.cos(a),cy+d*Math.sin(a)];};
-  const dp=live.map((s,i)=>pt(i,s));const path=dp.map((p,i)=>`${i?"L":"M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ")+"Z";
-  return(<svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{overflow:"visible"}}><defs><radialGradient id="rg" cx="50%" cy="50%" r="50%"><stop offset="0%" stopColor="#D4A84B" stopOpacity="0.06"/><stop offset="100%" stopColor="#D4A84B" stopOpacity="0"/></radialGradient></defs><circle cx={cx} cy={cy} r={r*1.2} fill="url(#rg)"/>{[0.25,0.5,0.75,1].map((ring,ri)=>{const pts=Array.from({length:n},(_,j)=>rpt(j,ring));return <path key={ri} d={pts.map((p,j)=>`${j?"L":"M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ")+"Z"} fill="none" stroke="rgba(255,255,255,0.04)" strokeWidth="0.75"/>;})}{Array.from({length:n},(_,i)=>{const[x,y]=rpt(i,1);return <line key={i} x1={cx} y1={cy} x2={x} y2={y} stroke="rgba(255,255,255,0.03)" strokeWidth="0.5"/>;})}<path d={path} fill="rgba(212,168,75,0.08)" stroke="rgba(212,168,75,0.5)" strokeWidth="1.5" strokeLinejoin="round"/>{dp.map((p,i)=><circle key={i} cx={p[0]} cy={p[1]} r={3} fill="#D4A84B" opacity={0.7}/>)}{PILLARS.map((pl,i)=>{const[x,y]=rpt(i,1.5);const Icon=pl.Icon;return(<foreignObject key={i} x={x-24} y={y-18} width={48} height={36} style={{overflow:"visible"}}><div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:2}}><Icon size={12} color={pl.hex} strokeWidth={1.8} style={{opacity:0.6}}/><span style={{fontSize:8,fontWeight:600,color:"rgba(255,255,255,0.3)",fontFamily:"'Outfit',sans-serif",textAlign:"center",lineHeight:1}}>{pl.name}</span></div></foreignObject>);})}</svg>);
+function loadAnswers() {
+  try {
+    const raw = window.sessionStorage.getItem(STORAGE_KEY);
+    return raw ? JSON.parse(raw) : {};
+  } catch {
+    return {};
+  }
 }
 
-function MiniRadar({scores,size=140,color="#D4A84B"}){const cx=size/2,cy=size/2,r=size*0.38,n=7;const pt=(i,v)=>{const a=(Math.PI*2*i)/n-Math.PI/2;const d=(v/10)*r;return[cx+d*Math.cos(a),cy+d*Math.sin(a)];};const rpt=(i,s)=>{const a=(Math.PI*2*i)/n-Math.PI/2;const d=s*r;return[cx+d*Math.cos(a),cy+d*Math.sin(a)];};const dp=scores.map((s,i)=>pt(i,s));const path=dp.map((p,i)=>`${i?"L":"M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ")+"Z";return(<svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>{[0.5,1].map((ring,ri)=>{const pts=Array.from({length:n},(_,j)=>rpt(j,ring));return <path key={ri} d={pts.map((p,j)=>`${j?"L":"M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ")+"Z"} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="0.5"/>;})}<path d={path} fill={`${color}15`} stroke={color} strokeWidth="1.5" strokeLinejoin="round" opacity={0.7}/>{dp.map((p,i)=><circle key={i} cx={p[0]} cy={p[1]} r={2} fill={color} opacity={0.7}/>)}</svg>);}
+function saveAnswers(answers) {
+  try {
+    window.sessionStorage.setItem(STORAGE_KEY, JSON.stringify(answers));
+  } catch {
+    // no-op
+  }
+}
 
-function PhoneMockup({children,label,description}){return(<div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:12,flex:1,minWidth:0}}><div style={{width:"100%",maxWidth:160,aspectRatio:"9/16",background:"#0A0A0A",borderRadius:20,border:"1.5px solid rgba(255,255,255,0.06)",overflow:"hidden",display:"flex",flexDirection:"column",position:"relative"}}><div style={{height:20,display:"flex",alignItems:"flex-end",justifyContent:"center",flexShrink:0}}><div style={{width:48,height:12,background:"#0A0A0A",borderRadius:8,border:"0.5px solid rgba(255,255,255,0.06)"}}/></div><div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column",padding:"6px 8px"}}>{children}</div></div><div style={{textAlign:"center"}}><div style={{fontSize:13,fontWeight:700,color:"#fff"}}>{label}</div><div style={{fontSize:11,color:"#444",marginTop:2,lineHeight:1.4}}>{description}</div></div></div>);}
+function Button({ children, onClick, disabled = false, kind = "primary", type = "button" }) {
+  const primary = kind === "primary";
+  return (
+    <button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      style={{
+        width: "100%",
+        border: "none",
+        borderRadius: 14,
+        padding: "15px 18px",
+        cursor: disabled ? "not-allowed" : "pointer",
+        background: primary ? GOLD : "transparent",
+        color: primary ? "#000" : "#fff",
+        borderColor: primary ? "transparent" : BORDER,
+        borderStyle: "solid",
+        borderWidth: 1,
+        fontSize: 15,
+        fontWeight: 700,
+        opacity: disabled ? 0.45 : 1,
+        display: "inline-flex",
+        alignItems: "center",
+        justifyContent: "center",
+        gap: 8,
+        transition: "transform 0.15s ease, opacity 0.15s ease",
+      }}
+    >
+      {children}
+    </button>
+  );
+}
 
-function AppPreview(){return(<div style={{display:"flex",gap:16,justifyContent:"center"}}><PhoneMockup label="See your shape" description="7 pillars as one living radar."><div style={{textAlign:"center",padding:"4px 0 2px"}}><div style={{fontSize:6,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.1em"}}>EXPANSION SCORE</div><div style={{fontSize:18,fontWeight:800,color:"#fff",fontFamily:"'JetBrains Mono',monospace"}}>7.4</div></div><div style={{display:"flex",justifyContent:"center"}}><MiniRadar scores={[8.2,7.5,6.8,7.0,8.5,7.2,9.0]} size={110}/></div><div style={{display:"flex",flexDirection:"column",gap:2,marginTop:4}}>{[{n:"Health",s:"8.5",c:"#B07A7A"},{n:"Business",s:"7.2",c:"#6B8CAE"},{n:"Growth",s:"6.8",c:"#A09570"}].map((p,i)=>(<div key={i} style={{display:"flex",alignItems:"center",gap:4,padding:"3px 5px",background:"rgba(255,255,255,0.02)",borderRadius:4,border:"0.5px solid rgba(255,255,255,0.04)"}}><div style={{width:4,height:4,borderRadius:2,background:p.c,flexShrink:0}}/><div style={{fontSize:5.5,color:"#888",flex:1}}>{p.n}</div><div style={{fontSize:6,fontWeight:800,color:p.c,fontFamily:"'JetBrains Mono',monospace"}}>{p.s}</div></div>))}</div></PhoneMockup><PhoneMockup label="Daily execution" description="One list. Check off what matters."><div style={{padding:"4px 0 6px"}}><div style={{fontSize:6,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.1em"}}>TODAY'S PROGRESS</div><div style={{display:"flex",alignItems:"center",gap:4,marginTop:2}}><div style={{flex:1,height:2,borderRadius:1,background:"rgba(255,255,255,0.04)"}}><div style={{height:2,borderRadius:1,background:"#D4A84B",width:"65%",opacity:0.6}}/></div><div style={{fontSize:5.5,fontWeight:700,color:"#D4A84B",fontFamily:"'JetBrains Mono',monospace"}}>7/11</div></div></div><div style={{display:"flex",flexDirection:"column",gap:2}}>{[{t:"Interval session",c:"#B07A7A",done:true},{t:"Deep work 2hrs",c:"#6B8CAE",done:true},{t:"Read 20 pages",c:"#A09570",done:true},{t:"Call family",c:"#8B85AA",done:false},{t:"Meal prep",c:"#B07A7A",done:false},{t:"Budget review",c:"#7A9E8C",done:false},{t:"Date night plan",c:"#A0788E",done:false}].map((h,i)=>(<div key={i} style={{display:"flex",alignItems:"center",gap:4,padding:"3.5px 5px",background:h.done?"rgba(212,168,75,0.04)":"rgba(255,255,255,0.015)",borderRadius:4,border:"0.5px solid rgba(255,255,255,0.03)"}}><div style={{width:8,height:8,borderRadius:2.5,background:h.done?"rgba(212,168,75,0.2)":"rgba(255,255,255,0.04)",border:h.done?"0.5px solid rgba(212,168,75,0.4)":"0.5px solid rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{h.done&&<span style={{fontSize:5,color:"#D4A84B"}}>✓</span>}</div><div style={{width:3,height:3,borderRadius:2,background:h.c,opacity:0.6,flexShrink:0}}/><div style={{fontSize:5.5,color:h.done?"#555":"#ccc",textDecoration:h.done?"line-through":"none",textDecorationColor:"#333"}}>{h.t}</div></div>))}</div></PhoneMockup><PhoneMockup label="Goal queue" description="Complete. Promote. Always moving."><div style={{padding:"4px 0 4px"}}><div style={{fontSize:6,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.1em",marginBottom:4}}>ACTIVE MISSION</div><div style={{padding:"5px 6px",background:"rgba(255,255,255,0.025)",borderRadius:5,border:"0.5px solid rgba(255,255,255,0.05)",marginBottom:6}}><div style={{display:"flex",alignItems:"center",gap:3,marginBottom:2}}><Activity size={7} color="#B07A7A" strokeWidth={2}/><span style={{fontSize:6,fontWeight:700,color:"#fff"}}>Run sub 20 min 5km</span></div><div style={{fontSize:5,color:"#444"}}>3 habits · Score: 8.5/10</div></div><div style={{fontSize:6,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.1em",marginBottom:3}}>GOAL QUEUE</div>{[{t:"Build muscle — gain 5kg",n:1},{t:"Marathon under 4hrs",n:2},{t:"Master handstand",n:3}].map((g,i)=>(<div key={i} style={{display:"flex",alignItems:"center",gap:4,padding:"3px 5px",background:"rgba(255,255,255,0.015)",borderRadius:3,border:"0.5px solid rgba(255,255,255,0.03)",marginBottom:2}}><div style={{width:8,height:8,borderRadius:3,background:i===0?"rgba(212,168,75,0.1)":"rgba(255,255,255,0.03)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:5,fontWeight:800,color:i===0?"#D4A84B":"#333",fontFamily:"'JetBrains Mono',monospace",flexShrink:0}}>{g.n}</div><div style={{fontSize:5.5,color:i===0?"#ccc":"#555"}}>{g.t}</div></div>))}<div style={{fontSize:6,fontWeight:700,color:"#1A1A1A",letterSpacing:"0.1em",marginTop:6,marginBottom:3}}>COMPLETED</div>{["Lose 10kg","Couch to 5k"].map((g,i)=>(<div key={i} style={{display:"flex",alignItems:"center",gap:4,padding:"2.5px 5px",marginBottom:1.5}}><div style={{width:7,height:7,borderRadius:2.5,background:"rgba(212,168,75,0.1)",display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontSize:4,color:"#D4A84B"}}>✓</span></div><div style={{fontSize:5,color:"#333",textDecoration:"line-through",textDecorationColor:"#1A1A1A"}}>{g}</div></div>))}</div></PhoneMockup></div>);}
+function Section({ eyebrow, title, subtitle, children, idRef }) {
+  return (
+    <section ref={idRef} style={{ padding: "34px 0" }}>
+      {eyebrow ? (
+        <div style={{ fontSize: 11, letterSpacing: "0.14em", fontWeight: 700, color: "#303030", marginBottom: 10 }}>
+          {eyebrow}
+        </div>
+      ) : null}
+      {title ? (
+        <h2
+          style={{
+            fontSize: 30,
+            lineHeight: 1.1,
+            margin: "0 0 12px",
+            fontWeight: 800,
+            letterSpacing: "-0.03em",
+          }}
+        >
+          {title}
+        </h2>
+      ) : null}
+      {subtitle ? (
+        <p style={{ margin: "0 0 22px", color: MUTED, lineHeight: 1.7, fontSize: 15 }}>{subtitle}</p>
+      ) : null}
+      {children}
+    </section>
+  );
+}
 
-function ScoringExplainer(){return(<div style={{display:"flex",gap:12,alignItems:"stretch"}}>{[{step:"1",title:"Track habits",desc:"Each pillar has habits with targets. Check them off daily.",icon:<Zap size={18} color="#D4A84B" strokeWidth={1.8}/>,visual:(<div style={{display:"flex",flexDirection:"column",gap:4,marginTop:8}}>{[{t:"Gym session",d:"3/3"},{t:"Read 20 pages",d:"5/7"},{t:"Budget review",d:"1/1"}].map((h,i)=>(<div key={i} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"6px 8px",background:"rgba(255,255,255,0.02)",borderRadius:6,border:"0.5px solid rgba(255,255,255,0.04)"}}><span style={{fontSize:10,color:"#999"}}>{h.t}</span><span style={{fontSize:9,fontWeight:700,color:"#D4A84B",fontFamily:"'JetBrains Mono',monospace"}}>{h.d}</span></div>))}</div>)},{step:"2",title:"Pillar scores",desc:"Habit completion averages into a rolling score out of 10.",icon:<Target size={18} color="#D4A84B" strokeWidth={1.8}/>,visual:(<div style={{display:"flex",flexDirection:"column",gap:6,marginTop:8}}>{[{n:"Health",s:8.5,c:"#B07A7A"},{n:"Growth",s:6.8,c:"#A09570"},{n:"Finance",s:7.2,c:"#7A9E8C"}].map((p,i)=>(<div key={i}><div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}><span style={{fontSize:10,color:"#888"}}>{p.n}</span><span style={{fontSize:10,fontWeight:700,color:p.c,fontFamily:"'JetBrains Mono',monospace"}}>{p.s}</span></div><div style={{height:3,borderRadius:2,background:"rgba(255,255,255,0.04)"}}><div style={{height:3,borderRadius:2,background:p.c,width:`${p.s*10}%`,opacity:0.5}}/></div></div>))}</div>)},{step:"3",title:"Radar expands",desc:"All 7 scores form your life shape. Watch it grow.",icon:<Layers size={18} color="#D4A84B" strokeWidth={1.8}/>,visual:(<div style={{display:"flex",justifyContent:"center",marginTop:4}}><MiniRadar scores={[8.2,7.5,6.8,7.0,8.5,7.2,9.0]} size={90}/></div>)}].map((s,i)=>(<div key={i} style={{flex:1,padding:"16px 14px",background:"rgba(255,255,255,0.02)",borderRadius:14,border:"1px solid rgba(255,255,255,0.04)",display:"flex",flexDirection:"column"}}><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}><div style={{width:28,height:28,borderRadius:8,background:"rgba(212,168,75,0.08)",border:"1px solid rgba(212,168,75,0.15)",display:"flex",alignItems:"center",justifyContent:"center"}}>{s.icon}</div><div><div style={{fontSize:9,fontWeight:700,color:"#D4A84B",letterSpacing:"0.08em"}}>STEP {s.step}</div><div style={{fontSize:13,fontWeight:700,color:"#fff"}}>{s.title}</div></div></div><div style={{fontSize:11,color:"#444",lineHeight:1.5}}>{s.desc}</div><div style={{flex:1}}>{s.visual}</div></div>))}</div>);}
+function ProgressBar({ current, total }) {
+  const width = `${(current / total) * 100}%`;
+  return (
+    <div style={{ marginBottom: 20 }}>
+      <div style={{ display: "flex", justifyContent: "space-between", marginBottom: 8, fontSize: 12, color: MUTED }}>
+        <span>Progress</span>
+        <span>
+          {current} / {total}
+        </span>
+      </div>
+      <div style={{ height: 8, borderRadius: 999, background: "rgba(255,255,255,0.06)", overflow: "hidden" }}>
+        <div style={{ height: "100%", width, background: GOLD, borderRadius: 999 }} />
+      </div>
+    </div>
+  );
+}
 
-function MilestoneBar(){const activeIdx=TIERS.findIndex(t=>t.active);return(<div style={{padding:"0 4px"}}><div style={{display:"flex",alignItems:"center",position:"relative"}}><div style={{position:"absolute",left:24,right:24,top:"50%",height:2,background:"rgba(255,255,255,0.04)",transform:"translateY(-50%)"}}/><div style={{position:"absolute",left:24,top:"50%",height:2,background:"linear-gradient(90deg,#D4A84B,rgba(212,168,75,0.15))",transform:"translateY(-50%)",width:`${(activeIdx/(TIERS.length-1))*100}%`,maxWidth:"calc(100% - 48px)"}}/>{TIERS.map((tier,i)=>{const isActive=i===activeIdx;const isPast=i<activeIdx;const Icon=tier.icon;return(<div key={i} style={{flex:1,display:"flex",flexDirection:"column",alignItems:"center",gap:6,position:"relative",zIndex:1}}><div style={{width:isActive?44:32,height:isActive?44:32,borderRadius:isActive?13:10,background:isActive?"rgba(212,168,75,0.15)":isPast?"rgba(212,168,75,0.08)":"rgba(255,255,255,0.02)",border:isActive?"1.5px solid rgba(212,168,75,0.4)":isPast?"1px solid rgba(212,168,75,0.15)":"1px solid rgba(255,255,255,0.05)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:isActive?"0 0 20px rgba(212,168,75,0.15)":"none"}}>{isPast?<Check size={14} color="#D4A84B" strokeWidth={2}/>:Icon?<Icon size={isActive?18:14} color={isActive?"#D4A84B":"#333"} strokeWidth={1.8}/>:<span style={{fontSize:isActive?12:10,color:isActive?"#D4A84B":"#333",fontWeight:700}}>∞</span>}</div><div style={{textAlign:"center"}}><div style={{fontSize:isActive?11:9,fontWeight:isActive?700:500,color:isActive?"#D4A84B":isPast?"rgba(212,168,75,0.5)":"#2A2A2A",letterSpacing:isActive?"0.05em":0}}>{tier.label}</div>{isActive&&<div style={{fontSize:8,color:"#555",marginTop:2}}>NOW OPEN</div>}</div></div>);})}</div></div>);}
+function RadarChart({ scores, size = 300 }) {
+  const cx = size / 2;
+  const cy = size / 2;
+  const r = size * 0.32;
+  const n = PILLARS.length;
 
-function EmailCapture({variant,onSubmit,submitted}){const[email,setEmail]=useState("");const valid=email.includes("@")&&email.includes(".");const handle=()=>{if(valid)onSubmit(email);};if(submitted)return(<div style={{textAlign:"center",padding:"20px 0"}}><div style={{width:48,height:48,borderRadius:14,background:"rgba(212,168,75,0.12)",border:"1px solid rgba(212,168,75,0.25)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 12px"}}><Check size={24} color="#D4A84B" strokeWidth={2}/></div><div style={{fontSize:18,fontWeight:700,color:"#fff",marginBottom:4}}>You're in.</div><div style={{fontSize:13,color:"#444"}}>We'll contact you before anyone else.</div></div>);return(<div><div style={{display:"flex",gap:8}}><input type="email" value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handle()} placeholder="your@email.com" style={{flex:1,padding:"14px 16px",background:"rgba(255,255,255,0.03)",borderRadius:12,border:"1px solid rgba(255,255,255,0.08)",fontSize:15,color:"#fff",fontFamily:"'Outfit',sans-serif",outline:"none",boxSizing:"border-box"}}/><div onClick={handle} style={{padding:"14px 24px",borderRadius:12,fontSize:14,fontWeight:700,cursor:valid?"pointer":"default",whiteSpace:"nowrap",background:valid?"#D4A84B":"#111",color:valid?"#000":"#333",display:"flex",alignItems:"center",gap:6,transition:"all 0.2s"}}>{variant==="hero"?"Claim My Spot":"Join Waitlist"} <ArrowRight size={16} strokeWidth={2.5}/></div></div>{variant==="hero"&&<div style={{fontSize:11,color:"#1E1E1E",marginTop:8,textAlign:"center"}}>No spam. One email when we launch.</div>}</div>);}
+  const point = (i, value, radiusScale = 1) => {
+    const angle = (Math.PI * 2 * i) / n - Math.PI / 2;
+    const distance = (value / 10) * r * radiusScale;
+    return [cx + distance * Math.cos(angle), cy + distance * Math.sin(angle)];
+  };
 
-function QuestionScreen({pillar,pillarIdx,answers,setAnswers,onNext,onBack,total}){const[show,setShow]=useState(false);useEffect(()=>{setShow(false);const t=setTimeout(()=>setShow(true),50);return()=>clearTimeout(t);},[pillarIdx]);const Icon=pillar.Icon;const current=answers[pillarIdx]||pillar.questions.map(()=>0);const setRating=(qi,val)=>{const u=[...current];u[qi]=val;const n=[...answers];n[pillarIdx]=u;setAnswers(n);};const allAnswered=current.every(v=>v>0);return(<div style={{opacity:show?1:0,transition:"opacity 0.4s",display:"flex",flexDirection:"column",gap:24}}><div style={{display:"flex",gap:4}}>{Array.from({length:total},(_,i)=>(<div key={i} style={{flex:1,height:3,borderRadius:2,background:i<pillarIdx?"#D4A84B":i===pillarIdx?"rgba(212,168,75,0.4)":"rgba(255,255,255,0.04)"}}/>))}</div><div style={{display:"flex",alignItems:"center",gap:14}}><div style={{width:48,height:48,borderRadius:13,background:`${pillar.hex}15`,border:`1px solid ${pillar.hex}30`,display:"flex",alignItems:"center",justifyContent:"center"}}><Icon size={22} color={pillar.hex} strokeWidth={1.8}/></div><div><div style={{fontSize:10,fontWeight:700,color:"#333",letterSpacing:"0.1em"}}>PILLAR {pillarIdx+1} OF {total}</div><div style={{fontSize:22,fontWeight:800,color:"#fff",letterSpacing:"-0.02em"}}>{pillar.fullName}</div></div></div><div style={{display:"flex",flexDirection:"column",gap:20}}>{pillar.questions.map((q,qi)=>(<div key={qi}><div style={{fontSize:15,fontWeight:500,color:"#ccc",lineHeight:1.5,marginBottom:14}}>{q.q}</div><div style={{display:"flex",gap:6}}>{[1,2,3,4,5].map(val=>{const sel=current[qi]===val;return(<div key={val} onClick={()=>setRating(qi,val)} style={{flex:1,padding:"12px 4px",borderRadius:10,cursor:"pointer",background:sel?`${pillar.hex}20`:"rgba(255,255,255,0.025)",border:sel?`1.5px solid ${pillar.hex}50`:"1px solid rgba(255,255,255,0.05)",display:"flex",flexDirection:"column",alignItems:"center",gap:4,transition:"all 0.15s"}}><div style={{fontSize:18,fontWeight:800,color:sel?pillar.hex:"#333",fontFamily:"'JetBrains Mono',monospace"}}>{val}</div><div style={{fontSize:8,color:sel?pillar.hex:"#2A2A2A",textAlign:"center",lineHeight:1.2,fontWeight:500,minHeight:18}}>{q.labels[val-1]}</div></div>);})}</div></div>))}</div><div style={{display:"flex",gap:8}}>{pillarIdx>0&&<div onClick={onBack} style={{padding:"14px 20px",borderRadius:12,fontSize:14,fontWeight:600,background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.06)",color:"#555",cursor:"pointer"}}>Back</div>}<div onClick={allAnswered?onNext:undefined} style={{flex:1,padding:"14px 0",borderRadius:12,fontSize:15,fontWeight:700,textAlign:"center",cursor:allAnswered?"pointer":"default",background:allAnswered?"#D4A84B":"#151515",color:allAnswered?"#000":"#333",transition:"all 0.2s"}}>{pillarIdx===total-1?"See My Results":"Next"}</div></div></div>);}
+  const polygon = (values, radiusScale = 1) =>
+    values
+      .map((v, i) => {
+        const [x, y] = point(i, v, radiusScale);
+        return `${i === 0 ? "M" : "L"}${x.toFixed(1)},${y.toFixed(1)}`;
+      })
+      .join(" ") + " Z";
 
-function AuditRadar({scores,size=260}){const[progress,setProgress]=useState(0);useEffect(()=>{let start=null,raf;const ease=t=>t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;function step(ts){if(!start)start=ts;const p=Math.min((ts-start)/1400,1);setProgress(ease(p));if(p<1)raf=requestAnimationFrame(step);}const timer=setTimeout(()=>{raf=requestAnimationFrame(step);},300);return()=>{clearTimeout(timer);if(raf)cancelAnimationFrame(raf);};},[]);const cx=size/2,cy=size/2,r=size*0.30,n=7;const pt=(i,v)=>{const a=(Math.PI*2*i)/n-Math.PI/2;const d=(v/10)*r*progress;return[cx+d*Math.cos(a),cy+d*Math.sin(a)];};const rpt=(i,s)=>{const a=(Math.PI*2*i)/n-Math.PI/2;const d=s*r;return[cx+d*Math.cos(a),cy+d*Math.sin(a)];};const dp=scores.map((s,i)=>pt(i,s));const path=dp.map((p,i)=>`${i?"L":"M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ")+"Z";return(<svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{overflow:"visible"}}>{[0.25,0.5,0.75,1].map((ring,ri)=>{const pts=Array.from({length:n},(_,j)=>rpt(j,ring));return <path key={ri} d={pts.map((p,j)=>`${j?"L":"M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ")+"Z"} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="0.75"/>;})}<path d={path} fill="rgba(212,168,75,0.1)" stroke="#D4A84B" strokeWidth="1.5" strokeLinejoin="round" opacity={progress}/>{dp.map((p,i)=><circle key={i} cx={p[0]} cy={p[1]} r={3} fill="#D4A84B" opacity={progress}/>)}{PILLARS.map((pl,i)=>{const[x,y]=rpt(i,1.45);const Icon=pl.Icon;return(<foreignObject key={i} x={x-22} y={y-16} width={44} height={32} style={{overflow:"visible"}}><div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:1}}><Icon size={11} color={pl.hex} strokeWidth={1.8} style={{opacity:0.4+progress*0.4}}/><span style={{fontSize:7.5,fontWeight:600,color:`rgba(255,255,255,${0.15+progress*0.3})`,fontFamily:"'Outfit',sans-serif",textAlign:"center",lineHeight:1}}>{pl.name}</span></div></foreignObject>);})}</svg>);}
+  const scorePath = polygon(scores);
 
-function ResultsScreen({scores,onSubmit,submitted}){const[phase,setPhase]=useState(0);const[copied,setCopied]=useState(false);useEffect(()=>{const t1=setTimeout(()=>setPhase(1),200);const t2=setTimeout(()=>setPhase(2),1200);const t3=setTimeout(()=>setPhase(3),2000);return()=>{clearTimeout(t1);clearTimeout(t2);clearTimeout(t3);};},[]);const avg=(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1);const sorted=scores.map((s,i)=>({score:s,pillar:PILLARS[i]})).sort((a,b)=>b.score-a.score);const strongest=sorted[0];const weakest=sorted[sorted.length-1];const gap=(strongest.score-weakest.score).toFixed(1);const getInsight=()=>{if(parseFloat(avg)>=8)return"You're operating at a high level. The question isn't what to fix — it's what to take from great to elite.";if(parseFloat(avg)<=4)return"You're in a rebuilding phase. The worst thing you can do is try to fix everything. Pick 3 and go deep.";if(parseFloat(gap)>=5)return`There's a ${gap}-point gap between your strongest and weakest pillar. You're overinvesting in ${strongest.pillar.name} at the cost of ${weakest.pillar.name}.`;return`${weakest.pillar.name} is holding you back. Focusing there could have the biggest impact on your overall life quality.`;};return(<div style={{display:"flex",flexDirection:"column"}}><div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"16px 0 8px",opacity:phase>=1?1:0,transition:"opacity 0.8s"}}><AuditRadar scores={scores} size={260}/></div><div style={{textAlign:"center",opacity:phase>=2?1:0,transition:"opacity 0.6s"}}><div style={{fontSize:10,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.15em",marginBottom:4}}>YOUR LIFE SCORE</div><div style={{fontSize:56,fontWeight:800,color:"#D4A84B",letterSpacing:"-0.04em",lineHeight:1,fontFamily:"'JetBrains Mono',monospace"}}>{avg}</div><div style={{fontSize:14,color:"#333",marginTop:2}}>/10</div></div><div style={{opacity:phase>=3?1:0,transition:"opacity 0.6s",marginTop:20}}><div style={{display:"flex",flexDirection:"column",gap:5,marginBottom:16}}>{sorted.map(({score,pillar})=>{const Icon=pillar.Icon;return(<div key={pillar.key} style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:26,height:26,borderRadius:7,background:`${pillar.hex}15`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Icon size={12} color={pillar.hex} strokeWidth={1.8}/></div><div style={{flex:1}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:11,fontWeight:600,color:"#888"}}>{pillar.name}</span><span style={{fontSize:11,fontWeight:700,color:pillar.hex,fontFamily:"'JetBrains Mono',monospace"}}>{score.toFixed(1)}</span></div><div style={{height:3,borderRadius:2,background:"rgba(255,255,255,0.04)"}}><div style={{height:3,borderRadius:2,background:pillar.hex,width:`${score*10}%`,opacity:0.5}}/></div></div></div>);})}</div><div style={{padding:"16px 18px",background:"rgba(212,168,75,0.04)",border:"1px solid rgba(212,168,75,0.1)",borderRadius:12,marginBottom:20}}><div style={{fontSize:9,fontWeight:700,color:"#D4A84B",letterSpacing:"0.1em",marginBottom:4}}>YOUR INSIGHT</div><div style={{fontSize:13,color:"#999",lineHeight:1.6}}>{getInsight()}</div></div><div style={{padding:"20px 18px",background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.05)",borderRadius:14,marginBottom:14}}><div style={{fontSize:16,fontWeight:800,color:"#fff",marginBottom:4}}>Ready to change your score?</div><div style={{fontSize:12,color:"#444",lineHeight:1.6,marginBottom:14}}>Join the Founding 100 — permanent badge + 1 year free premium.</div><EmailCapture variant="results" onSubmit={onSubmit} submitted={submitted}/></div><div onClick={()=>{navigator.clipboard?.writeText(`My Misogi Life Score: ${avg}/10\n\n${sorted.map(s=>`${s.pillar.name}: ${s.score.toFixed(1)}`).join('\n')}\n\nTake yours →`);setCopied(true);setTimeout(()=>setCopied(false),2000);}} style={{padding:"11px 0",borderRadius:10,fontSize:12,fontWeight:600,background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.05)",color:"#666",textAlign:"center",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>{copied?<><Check size={13} color="#D4A84B" strokeWidth={2}/> Copied!</>:<><Copy size={13} color="#666" strokeWidth={1.8}/> Share Results</>}</div></div></div>);}
+  return (
+    <div style={{ display: "flex", justifyContent: "center", margin: "10px 0 18px" }}>
+      <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{ maxWidth: "100%", height: "auto" }}>
+        {[2.5, 5, 7.5, 10].map((ring, idx) => (
+          <path
+            key={idx}
+            d={polygon(Array(PILLARS.length).fill(ring))}
+            fill="none"
+            stroke="rgba(255,255,255,0.07)"
+            strokeWidth="1"
+          />
+        ))}
 
-export default function MisogiFoundingPage(){const[submitted,setSubmitted]=useState(false);const[auditStarted,setAuditStarted]=useState(false);const[currentPillar,setCurrentPillar]=useState(0);const[answers,setAnswers]=useState(PILLARS.map(p=>p.questions.map(()=>0)));const[showResults,setShowResults]=useState(false);const[emailGated,setEmailGated]=useState(false);const[heroShow,setHeroShow]=useState(false);const auditRef=useRef(null);useEffect(()=>{setTimeout(()=>setHeroShow(true),100);},[]);const scores=answers.map(a=>{const avg=a.reduce((x,y)=>x+y,0)/a.length;return Math.round(avg*20)/10;});const handleSubmit=(email)=>{setSubmitted(true);};const startAudit=()=>{setAuditStarted(true);setTimeout(()=>auditRef.current?.scrollIntoView({behavior:"smooth",block:"start"}),50);};
-return(<div style={{minHeight:"100vh",background:"#030303",fontFamily:"'Outfit',sans-serif",color:"#fff"}}><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/><style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}.fade-up{animation:fadeUp 0.8s ease-out forwards;opacity:0;}`}</style><div style={{maxWidth:560,margin:"0 auto",padding:"0 24px"}}>
-{/* NAV */}
-<div style={{display:"flex",alignItems:"center",padding:"48px 0 0"}}><div style={{display:"flex",alignItems:"center",gap:8}}><span style={{fontSize:18,fontWeight:800,letterSpacing:"-0.04em"}}>MISOGI</span><span style={{fontSize:10,color:"#D4A84B",fontWeight:600,opacity:0.4}}>禊</span></div></div>
-{/* 1. HERO */}
-<div style={{padding:"48px 0 32px",opacity:heroShow?1:0,transition:"opacity 0.8s"}}><div style={{display:"flex",justifyContent:"center",marginBottom:4}}><BreathingRadar size={280}/></div><div style={{textAlign:"center",marginBottom:32}}><div className="fade-up" style={{animationDelay:"0.3s"}}><div style={{display:"inline-flex",alignItems:"center",gap:6,padding:"5px 14px",background:"rgba(212,168,75,0.08)",border:"1px solid rgba(212,168,75,0.15)",borderRadius:20,marginBottom:16}}><Crown size={12} color="#D4A84B" strokeWidth={2}/><span style={{fontSize:11,fontWeight:700,color:"#D4A84B",letterSpacing:"0.08em"}}>FOUNDING 100 — NOW OPEN</span></div></div><h1 className="fade-up" style={{fontSize:40,fontWeight:800,letterSpacing:"-0.03em",lineHeight:1.1,margin:"0 0 14px",animationDelay:"0.5s"}}>Your life has<br/>seven pillars.<br/><span style={{color:"#D4A84B",fontStyle:"italic"}}>Most are crumbling.</span></h1><p className="fade-up" style={{fontSize:15,color:"#444",lineHeight:1.7,margin:"0 auto 0",maxWidth:400,animationDelay:"0.7s"}}>Misogi is the first system that tracks whether your life is actually balanced — across career, health, finances, relationships, growth, and more.</p><div className="fade-up" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16,marginTop:24,animationDelay:"0.9s"}}><div onClick={startAudit} style={{padding:"14px 28px",borderRadius:12,background:"#D4A84B",color:"#000",fontSize:15,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",gap:8}}>Take the Life Audit <ArrowRight size={16} strokeWidth={2.5}/></div><span style={{fontSize:12,color:"#333"}}>2 min · free</span></div></div><div style={{height:1,background:"rgba(255,255,255,0.03)"}}/></div>
-{/* 2. APP PREVIEW */}
-<div style={{padding:"40px 0"}}><div style={{fontSize:10,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.15em",marginBottom:8}}>INSIDE THE APP</div><h2 style={{fontSize:26,fontWeight:800,letterSpacing:"-0.02em",lineHeight:1.2,margin:"0 0 20px"}}>Not another habit tracker.<br/><span style={{color:"#555"}}>A life alignment system.</span></h2><AppPreview/><div style={{height:1,background:"rgba(255,255,255,0.03)",marginTop:40}}/></div>
-{/* 3. HOW SCORING WORKS */}
-<div style={{padding:"40px 0"}}><div style={{fontSize:10,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.15em",marginBottom:8}}>HOW IT WORKS</div><h2 style={{fontSize:26,fontWeight:800,letterSpacing:"-0.02em",lineHeight:1.2,margin:"0 0 20px"}}>Three steps to a<br/><span style={{color:"#D4A84B",fontStyle:"italic"}}>life in motion.</span></h2><ScoringExplainer/><div style={{height:1,background:"rgba(255,255,255,0.03)",marginTop:40}}/></div>
-{/* 4. FOUNDING OFFER */}
-<div style={{padding:"40px 0"}}><div style={{padding:"28px 22px",background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.05)",borderRadius:18}}><div style={{display:"flex",alignItems:"center",gap:10,marginBottom:14}}><Crown size={20} color="#D4A84B" strokeWidth={1.8}/><div><div style={{fontSize:16,fontWeight:700,color:"#fff"}}>Founding Member</div><div style={{fontSize:11,color:"#444"}}>Be one of the first 100</div></div></div><div style={{display:"flex",gap:12,marginBottom:18}}><div style={{flex:1,padding:"10px 12px",background:"rgba(212,168,75,0.05)",borderRadius:10,border:"1px solid rgba(212,168,75,0.1)"}}><div style={{fontSize:9,fontWeight:700,color:"#D4A84B",letterSpacing:"0.08em",marginBottom:3}}>PERK 1</div><div style={{fontSize:12,fontWeight:600,color:"#ccc"}}>Permanent Founding Member badge</div></div><div style={{flex:1,padding:"10px 12px",background:"rgba(212,168,75,0.05)",borderRadius:10,border:"1px solid rgba(212,168,75,0.1)"}}><div style={{fontSize:9,fontWeight:700,color:"#D4A84B",letterSpacing:"0.08em",marginBottom:3}}>PERK 2</div><div style={{fontSize:12,fontWeight:600,color:"#ccc"}}>1 year free premium access</div></div></div><EmailCapture variant="hero" onSubmit={handleSubmit} submitted={submitted}/></div></div>
-{/* 5. MILESTONES */}
-<div style={{padding:"0 0 40px"}}><MilestoneBar/></div>
-{/* 6. MR MISOGI QUOTE */}
-<div style={{padding:"32px 0 40px",display:"flex",flexDirection:"column",alignItems:"center"}}><div style={{width:56,height:56,borderRadius:16,background:"rgba(212,168,75,0.06)",border:"1px solid rgba(212,168,75,0.1)",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:16,fontSize:24}}>禊</div><div style={{fontSize:20,fontWeight:300,color:"#666",textAlign:"center",lineHeight:1.6,fontStyle:"italic",maxWidth:380,letterSpacing:"-0.01em"}}>"A life out of balance<br/>is a life out of control."</div><div style={{fontSize:11,fontWeight:600,color:"#222",marginTop:10,letterSpacing:"0.08em"}}>— MR MISOGI</div><div style={{height:1,background:"rgba(255,255,255,0.03)",width:"100%",marginTop:40}}/></div>
-{/* 7. THE 7 PILLARS */}
-<div style={{padding:"0 0 40px"}}><div style={{fontSize:10,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.15em",marginBottom:8}}>THE 7 PILLARS</div><h2 style={{fontSize:26,fontWeight:800,letterSpacing:"-0.02em",lineHeight:1.2,margin:"0 0 12px"}}>Track all seven.<br/>Focus on <span style={{color:"#D4A84B"}}>three</span>.</h2><p style={{fontSize:14,color:"#444",lineHeight:1.7,margin:"0 0 20px"}}>You set a mission for each pillar. You choose 3 to pour your energy into. The rest stay on your radar — visible but waiting. When priorities shift, you rotate.</p><div style={{display:"flex",flexWrap:"wrap",gap:6}}>{PILLARS.map((p,i)=>{const Icon=p.Icon;return(<div key={i} style={{display:"flex",alignItems:"center",gap:7,padding:"8px 14px 8px 10px",background:`${p.hex}08`,border:`1px solid ${p.hex}18`,borderRadius:10}}><Icon size={14} color={p.hex} strokeWidth={1.8}/><span style={{fontSize:12,fontWeight:600,color:p.hex}}>{p.name}</span></div>);})}</div><div style={{height:1,background:"rgba(255,255,255,0.03)",marginTop:32}}/></div>
-{/* 8. LIFE AUDIT */}
-<div ref={auditRef} style={{padding:"40px 0 60px"}}><div style={{fontSize:10,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.15em",marginBottom:8}}>FREE LIFE AUDIT</div><h2 style={{fontSize:26,fontWeight:800,letterSpacing:"-0.02em",lineHeight:1.2,margin:"0 0 12px"}}>See where you <span style={{color:"#D4A84B",fontStyle:"italic"}}>actually</span> stand.</h2><p style={{fontSize:14,color:"#444",lineHeight:1.7,margin:"0 0 24px"}}>Rate yourself honestly across all 7 pillars. Get your personalised radar chart. Takes 2 minutes.</p>{!auditStarted&&<div onClick={startAudit} style={{padding:"16px 0",borderRadius:14,background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.06)",fontSize:15,fontWeight:700,color:"#fff",textAlign:"center",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>Take the Audit <ArrowRight size={16} strokeWidth={2.5}/></div>}{auditStarted&&!emailGated&&!showResults&&<QuestionScreen pillar={PILLARS[currentPillar]} pillarIdx={currentPillar} answers={answers} setAnswers={setAnswers} total={7} onNext={()=>{if(currentPillar===6)setEmailGated(true);else setCurrentPillar(currentPillar+1);}} onBack={()=>setCurrentPillar(Math.max(0,currentPillar-1))}/>}{emailGated&&!showResults&&(<div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:20,padding:"20px 0"}}><div style={{width:64,height:64,borderRadius:18,background:"rgba(212,168,75,0.1)",border:"1px solid rgba(212,168,75,0.2)",display:"flex",alignItems:"center",justifyContent:"center"}}><Check size={28} color="#D4A84B" strokeWidth={2}/></div><div style={{textAlign:"center"}}><div style={{fontSize:20,fontWeight:800,color:"#fff",marginBottom:6}}>Audit complete.</div><div style={{fontSize:14,color:"#555",lineHeight:1.6,maxWidth:360}}>Your personalised radar chart is ready. Enter your email below to unlock your results and join the Founding 100.</div></div><div style={{width:"100%",background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.05)",borderRadius:16,padding:"20px 16px",display:"flex",flexDirection:"column",alignItems:"center"}}><iframe src="https://subscribe-forms.beehiiv.com/d33da0ae-9ed6-4aa1-8ab3-27b4af6c1aa8" style={{width:"100%",maxWidth:480,height:300,border:"none",borderRadius:8,background:"transparent"}} scrolling="no"/></div><div onClick={()=>{setShowResults(true);setSubmitted(true);}} style={{padding:"14px 32px",borderRadius:12,background:"#D4A84B",color:"#000",fontSize:15,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",gap:8}}>Show My Results <ArrowRight size={16} strokeWidth={2.5}/></div><div style={{fontSize:11,color:"#222"}}>Already signed up? Tap above to see your radar.</div></div>)}{showResults&&<ResultsScreen scores={scores} onSubmit={handleSubmit} submitted={submitted}/>}</div>
-{/* FOOTER */}
-<div style={{padding:"32px 0 48px",borderTop:"1px solid rgba(255,255,255,0.03)",textAlign:"center"}}><div style={{fontSize:16,fontWeight:800,letterSpacing:"-0.04em",color:"#fff",marginBottom:4}}>MISOGI</div><div style={{fontSize:11,color:"#1A1A1A"}}>Focus. Sacrifice. Grow.</div></div>
-</div></div>);}
+        {PILLARS.map((pillar, i) => {
+          const [x, y] = point(i, 10, 1.12);
+          return <line key={pillar.key} x1={cx} y1={cy} x2={x} y2={y} stroke="rgba(255,255,255,0.05)" />;
+        })}
+
+        <path d={scorePath} fill="rgba(212,168,75,0.12)" stroke={GOLD} strokeWidth="2" />
+
+        {scores.map((value, i) => {
+          const [x, y] = point(i, value);
+          return <circle key={PILLARS[i].key} cx={x} cy={y} r="4" fill={GOLD} />;
+        })}
+
+        {PILLARS.map((pillar, i) => {
+          const [x, y] = point(i, 10, 1.28);
+          return (
+            <g key={pillar.key}>
+              <text
+                x={x}
+                y={y}
+                textAnchor="middle"
+                dominantBaseline="middle"
+                fill={pillar.hex}
+                fontSize="11"
+                fontWeight="700"
+              >
+                {pillar.name}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+    </div>
+  );
+}
+
+function ScoreCards({ scores }) {
+  return (
+    <div
+      style={{
+        display: "grid",
+        gridTemplateColumns: "repeat(auto-fit, minmax(135px, 1fr))",
+        gap: 12,
+      }}
+    >
+      {PILLARS.map((pillar, index) => {
+        const score = scores[index];
+        const Icon = pillar.Icon;
+        return (
+          <div
+            key={pillar.key}
+            style={{
+              background: PANEL,
+              border: `1px solid ${BORDER}`,
+              borderRadius: 16,
+              padding: 14,
+            }}
+          >
+            <div style={{ display: "flex", alignItems: "center", gap: 8, marginBottom: 8 }}>
+              <Icon size={16} color={pillar.hex} />
+              <span style={{ fontSize: 13, fontWeight: 700 }}>{pillar.name}</span>
+            </div>
+            <div style={{ fontSize: 24, fontWeight: 800, color: pillar.hex }}>{score.toFixed(1)}</div>
+            <div style={{ fontSize: 12, color: MUTED }}>out of 10</div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+function BeehiivEmbed() {
+  useEffect(() => {
+    const existing = document.querySelector('script[src="https://subscribe-forms.beehiiv.com/embed.js"]');
+    if (existing) return;
+
+    const script = document.createElement("script");
+    script.src = "https://subscribe-forms.beehiiv.com/embed.js";
+    script.async = true;
+    document.body.appendChild(script);
+  }, []);
+
+  return (
+    <div
+      style={{
+        background: PANEL,
+        border: `1px solid ${BORDER}`,
+        borderRadius: 18,
+        padding: 14,
+        overflow: "hidden",
+      }}
+    >
+      <iframe
+        title="Beehiiv subscribe form"
+        src="https://subscribe-forms.beehiiv.com/d33da0ae-9ed6-4aa1-8ab3-27b4af6c1aa8"
+        className="beehiiv-embed"
+        data-test-id="beehiiv-embed"
+        frameBorder="0"
+        scrolling="no"
+        style={{
+          width: "100%",
+          minHeight: 260,
+          height: 260,
+          margin: 0,
+          borderRadius: 12,
+          backgroundColor: "transparent",
+          boxShadow: "0 0 #0000",
+          display: "block",
+        }}
+      />
+    </div>
+  );
+}
+
+function App() {
+  const auditRef = useRef(null);
+  const [answers, setAnswers] = useState(() => (typeof window === "undefined" ? {} : loadAnswers()));
+  const [currentPillar, setCurrentPillar] = useState(0);
+  const [stage, setStage] = useState("intro");
+
+  useEffect(() => {
+    saveAnswers(answers);
+  }, [answers]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const params = new URLSearchParams(window.location.search);
+    const subscribed = params.get(REDIRECT_FLAG) === "1";
+    const hasSavedAudit = Object.keys(loadAnswers()).length > 0;
+
+    if (subscribed && hasSavedAudit) {
+      setAnswers(loadAnswers());
+      setStage("results");
+      setTimeout(() => auditRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 50);
+    }
+  }, []);
+
+  const answeredCount = useMemo(() => {
+    return PILLARS.reduce((count, pillar) => {
+      const selected = answers[pillar.key] || [];
+      return count + selected.filter((value) => typeof value === "number").length;
+    }, 0);
+  }, [answers]);
+
+  const totalQuestions = PILLARS.reduce((sum, pillar) => sum + pillar.questions.length, 0);
+  const currentQuestionSet = PILLARS[currentPillar];
+  const currentAnswers = answers[currentQuestionSet.key] || [];
+  const canAdvance = currentAnswers.length === currentQuestionSet.questions.length && currentAnswers.every((value) => typeof value === "number");
+
+  const scores = useMemo(() => {
+    return PILLARS.map((pillar) => {
+      const values = answers[pillar.key] || [];
+      if (!values.length) return 0;
+      const average = values.reduce((sum, value) => sum + value, 0) / values.length;
+      return Number((average * 2).toFixed(1));
+    });
+  }, [answers]);
+
+  const overallScore = useMemo(() => {
+    if (!scores.length) return 0;
+    const validScores = scores.filter((score) => score > 0);
+    if (!validScores.length) return 0;
+    return Number((validScores.reduce((sum, score) => sum + score, 0) / validScores.length).toFixed(1));
+  }, [scores]);
+
+  const strongest = useMemo(() => {
+    const ranked = PILLARS.map((pillar, index) => ({ ...pillar, score: scores[index] })).sort((a, b) => b.score - a.score);
+    return ranked.slice(0, 3);
+  }, [scores]);
+
+  const weakest = useMemo(() => {
+    const ranked = PILLARS.map((pillar, index) => ({ ...pillar, score: scores[index] })).sort((a, b) => a.score - b.score);
+    return ranked.slice(0, 3);
+  }, [scores]);
+
+  const scrollToAudit = () => {
+    setTimeout(() => auditRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 20);
+  };
+
+  const startAudit = () => {
+    setStage("audit");
+    scrollToAudit();
+  };
+
+  const selectAnswer = (pillarKey, questionIndex, value) => {
+    setAnswers((prev) => {
+      const next = { ...prev };
+      const existing = [...(next[pillarKey] || [])];
+      existing[questionIndex] = value;
+      next[pillarKey] = existing;
+      return next;
+    });
+  };
+
+  const nextStep = () => {
+    if (!canAdvance) return;
+    if (currentPillar === PILLARS.length - 1) {
+      setStage("gate");
+      scrollToAudit();
+      return;
+    }
+    setCurrentPillar((value) => value + 1);
+  };
+
+  const prevStep = () => {
+    if (currentPillar === 0) {
+      setStage("intro");
+      return;
+    }
+    setCurrentPillar((value) => value - 1);
+  };
+
+  const resetAudit = () => {
+    setAnswers({});
+    setCurrentPillar(0);
+    setStage("intro");
+    if (typeof window !== "undefined") {
+      window.sessionStorage.removeItem(STORAGE_KEY);
+      const url = new URL(window.location.href);
+      url.searchParams.delete(REDIRECT_FLAG);
+      window.history.replaceState({}, "", url.toString());
+    }
+  };
+
+  const currentQuestionNumber = PILLARS.slice(0, currentPillar).reduce((sum, pillar) => sum + pillar.questions.length, 0);
+
+  return (
+    <div style={{ minHeight: "100vh", background: BG, color: "#fff", fontFamily: "Inter, Outfit, system-ui, sans-serif" }}>
+      <link rel="preconnect" href="https://fonts.googleapis.com" />
+      <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
+      <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+
+      <style>{`
+        * { box-sizing: border-box; }
+        html { scroll-behavior: smooth; }
+        body { margin: 0; background: ${BG}; }
+        button { font-family: inherit; }
+        @media (max-width: 640px) {
+          .hero-title { font-size: 38px !important; }
+          .shell { padding-left: 18px !important; padding-right: 18px !important; }
+          .beehiiv-embed { height: 320px !important; }
+        }
+      `}</style>
+
+      <div className="shell" style={{ maxWidth: 720, margin: "0 auto", padding: "0 24px 56px" }}>
+        <header style={{ padding: "28px 0 10px", display: "flex", alignItems: "center", justifyContent: "space-between" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+            <div style={{ fontSize: 20, fontWeight: 800, letterSpacing: "-0.04em" }}>MISOGI</div>
+            <div style={{ color: GOLD, fontSize: 12, opacity: 0.75 }}>禊</div>
+          </div>
+          <div style={{ fontSize: 12, color: MUTED }}>Life alignment audit</div>
+        </header>
+
+        <Section
+          eyebrow="FOUNDING 100"
+          title={<span className="hero-title">Your life has seven pillars. Most people only track one.</span>}
+          subtitle="Take the Misogi life audit, see your current shape across all 7 pillars, and unlock your radar chart after subscribing."
+        >
+          <div
+            style={{
+              background: "linear-gradient(180deg, rgba(212,168,75,0.08), rgba(255,255,255,0.02))",
+              border: `1px solid rgba(212,168,75,0.14)`,
+              borderRadius: 22,
+              padding: 22,
+              marginBottom: 16,
+            }}
+          >
+            <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(140px, 1fr))", gap: 12 }}>
+              {[
+                "2 minute audit",
+                "7 pillar score",
+                "Radar chart unlocked after signup",
+              ].map((item) => (
+                <div key={item} style={{ background: "rgba(255,255,255,0.03)", borderRadius: 14, padding: 14, border: `1px solid ${BORDER}` }}>
+                  <div style={{ fontSize: 13, fontWeight: 700 }}>{item}</div>
+                </div>
+              ))}
+            </div>
+          </div>
+          <div style={{ display: "flex", gap: 12, flexWrap: "wrap" }}>
+            <div style={{ flex: 1, minWidth: 220 }}>
+              <Button onClick={startAudit}>
+                Take the Life Audit <ArrowRight size={16} />
+              </Button>
+            </div>
+          </div>
+        </Section>
+
+        <div style={{ height: 1, background: "rgba(255,255,255,0.05)" }} />
+
+        <Section
+          idRef={auditRef}
+          eyebrow="FREE LIFE AUDIT"
+          title="See where you actually stand."
+          subtitle={
+            stage === "gate"
+              ? "Your answers are saved on this device. Subscribe below and Beehiiv will redirect you back here to unlock your results automatically."
+              : stage === "results"
+                ? "Your results are unlocked. Focus on strengthening the weakest pillars first."
+                : "Answer honestly across all 7 pillars. Your answers stay saved on this device until you reset the audit."
+          }
+        >
+          {stage === "intro" ? (
+            <div style={{ background: PANEL, border: `1px solid ${BORDER}`, borderRadius: 20, padding: 20 }}>
+              <div style={{ marginBottom: 16, fontSize: 15, color: MUTED, lineHeight: 1.7 }}>
+                You’ll answer 14 quick questions. At the end, your email unlocks your personalised radar chart.
+              </div>
+              <Button onClick={startAudit}>
+                Start audit <ArrowRight size={16} />
+              </Button>
+            </div>
+          ) : null}
+
+          {stage === "audit" ? (
+            <div style={{ background: PANEL, border: `1px solid ${BORDER}`, borderRadius: 20, padding: 20 }}>
+              <ProgressBar current={answeredCount} total={totalQuestions} />
+
+              <div style={{ marginBottom: 10, display: "flex", alignItems: "center", gap: 10 }}>
+                <div
+                  style={{
+                    width: 42,
+                    height: 42,
+                    borderRadius: 12,
+                    background: `${currentQuestionSet.hex}18`,
+                    border: `1px solid ${currentQuestionSet.hex}33`,
+                    display: "grid",
+                    placeItems: "center",
+                    flexShrink: 0,
+                  }}
+                >
+                  {(() => { const CurrentIcon = currentQuestionSet.Icon; return <CurrentIcon size={18} color={currentQuestionSet.hex} />; })()}
+                </div>
+                <div>
+                  <div style={{ fontSize: 12, color: MUTED }}>
+                    Pillar {currentPillar + 1} of {PILLARS.length}
+                  </div>
+                  <div style={{ fontSize: 22, fontWeight: 800 }}>{currentQuestionSet.fullName}</div>
+                </div>
+              </div>
+
+              <div style={{ display: "grid", gap: 16, marginTop: 18 }}>
+                {currentQuestionSet.questions.map((question, questionIndex) => {
+                  const globalQuestion = currentQuestionNumber + questionIndex + 1;
+                  const selectedValue = currentAnswers[questionIndex];
+                  return (
+                    <div key={question.q} style={{ background: "rgba(255,255,255,0.02)", borderRadius: 16, padding: 14, border: `1px solid ${BORDER}` }}>
+                      <div style={{ fontSize: 12, color: MUTED, marginBottom: 8 }}>Question {globalQuestion}</div>
+                      <div style={{ fontSize: 17, fontWeight: 700, lineHeight: 1.45, marginBottom: 12 }}>{question.q}</div>
+                      <div style={{ display: "grid", gap: 8 }}>
+                        {question.labels.map((label, labelIndex) => {
+                          const value = labelIndex + 1;
+                          const selected = selectedValue === value;
+                          return (
+                            <button
+                              key={label}
+                              type="button"
+                              onClick={() => selectAnswer(currentQuestionSet.key, questionIndex, value)}
+                              style={{
+                                textAlign: "left",
+                                width: "100%",
+                                padding: "12px 14px",
+                                borderRadius: 12,
+                                border: selected ? `1px solid ${currentQuestionSet.hex}` : `1px solid ${BORDER}`,
+                                background: selected ? `${currentQuestionSet.hex}14` : "rgba(255,255,255,0.015)",
+                                color: "#fff",
+                                cursor: "pointer",
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 10,
+                              }}
+                            >
+                              <div
+                                style={{
+                                  width: 22,
+                                  height: 22,
+                                  borderRadius: 999,
+                                  border: selected ? `6px solid ${currentQuestionSet.hex}` : `1px solid rgba(255,255,255,0.22)`,
+                                  background: selected ? "transparent" : "transparent",
+                                  flexShrink: 0,
+                                }}
+                              />
+                              <span style={{ fontSize: 14, fontWeight: 600 }}>{label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap", marginTop: 18 }}>
+                <div style={{ flex: 1, minWidth: 120 }}>
+                  <Button kind="secondary" onClick={prevStep}>
+                    Back
+                  </Button>
+                </div>
+                <div style={{ flex: 2, minWidth: 160 }}>
+                  <Button onClick={nextStep} disabled={!canAdvance}>
+                    {currentPillar === PILLARS.length - 1 ? "Finish audit" : "Next pillar"} <ArrowRight size={16} />
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {stage === "gate" ? (
+            <div style={{ display: "grid", gap: 16 }}>
+              <div
+                style={{
+                  background: "rgba(212,168,75,0.08)",
+                  border: `1px solid rgba(212,168,75,0.16)`,
+                  borderRadius: 18,
+                  padding: 18,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                  <CheckCircle2 size={18} color={GOLD} />
+                  <div style={{ fontWeight: 800 }}>Audit complete</div>
+                </div>
+                <div style={{ color: "#c7c7c7", lineHeight: 1.7, fontSize: 14 }}>
+                  This version uses the real Beehiiv embed only. There’s no fake unlock button. To reveal results reliably, set your Beehiiv form’s success action to redirect back to this page with
+                  <span style={{ color: GOLD }}> ?{REDIRECT_FLAG}=1</span> on the URL.
+                </div>
+              </div>
+
+              <BeehiivEmbed />
+
+              <div style={{ background: PANEL, border: `1px solid ${BORDER}`, borderRadius: 18, padding: 16 }}>
+                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 8 }}>Recommended Beehiiv redirect</div>
+                <code
+                  style={{
+                    display: "block",
+                    whiteSpace: "pre-wrap",
+                    wordBreak: "break-word",
+                    fontSize: 12,
+                    color: GOLD,
+                    lineHeight: 1.6,
+                  }}
+                >
+                  {"https://yourdomain.com/?misogi_subscribed=1"}
+                </code>
+                <div style={{ marginTop: 10, color: MUTED, lineHeight: 1.7, fontSize: 13 }}>
+                  Because Beehiiv’s iframe does not provide a verified success event to this React component, the cleanest real gate is a post-submit redirect. Your audit answers are already saved in session storage, so the radar can unlock after the redirect.
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <div style={{ flex: 1, minWidth: 160 }}>
+                  <Button kind="secondary" onClick={() => setStage("audit")}>
+                    Edit answers
+                  </Button>
+                </div>
+                <div style={{ flex: 1, minWidth: 160 }}>
+                  <Button kind="secondary" onClick={resetAudit}>
+                    Reset audit
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+
+          {stage === "results" ? (
+            <div style={{ display: "grid", gap: 18 }}>
+              <div
+                style={{
+                  background: "linear-gradient(180deg, rgba(212,168,75,0.12), rgba(255,255,255,0.02))",
+                  border: `1px solid rgba(212,168,75,0.18)`,
+                  borderRadius: 22,
+                  padding: 20,
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: 10, marginBottom: 8 }}>
+                  <Crown size={18} color={GOLD} />
+                  <div style={{ fontSize: 14, fontWeight: 800, color: GOLD }}>Results unlocked</div>
+                </div>
+                <div style={{ fontSize: 36, fontWeight: 800, letterSpacing: "-0.04em" }}>{overallScore.toFixed(1)}</div>
+                <div style={{ color: MUTED, fontSize: 14 }}>Overall life alignment score</div>
+                <RadarChart scores={scores} />
+              </div>
+
+              <ScoreCards scores={scores} />
+
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))", gap: 12 }}>
+                <div style={{ background: PANEL, border: `1px solid ${BORDER}`, borderRadius: 18, padding: 16 }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 10 }}>Strongest pillars</div>
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {strongest.map((pillar) => (
+                      <div key={pillar.key} style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+                        <span style={{ color: pillar.hex, fontWeight: 700 }}>{pillar.name}</span>
+                        <span style={{ color: "#fff", fontWeight: 700 }}>{pillar.score.toFixed(1)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+
+                <div style={{ background: PANEL, border: `1px solid ${BORDER}`, borderRadius: 18, padding: 16 }}>
+                  <div style={{ fontSize: 14, fontWeight: 800, marginBottom: 10 }}>Needs attention</div>
+                  <div style={{ display: "grid", gap: 8 }}>
+                    {weakest.map((pillar) => (
+                      <div key={pillar.key} style={{ display: "flex", justifyContent: "space-between", gap: 10 }}>
+                        <span style={{ color: pillar.hex, fontWeight: 700 }}>{pillar.name}</span>
+                        <span style={{ color: "#fff", fontWeight: 700 }}>{pillar.score.toFixed(1)}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+
+              <div style={{ display: "flex", gap: 10, flexWrap: "wrap" }}>
+                <div style={{ flex: 1, minWidth: 160 }}>
+                  <Button kind="secondary" onClick={resetAudit}>
+                    <RotateCcw size={16} /> Retake audit
+                  </Button>
+                </div>
+              </div>
+            </div>
+          ) : null}
+        </Section>
+      </div>
+    </div>
+  );
+}
+
+export default App;
