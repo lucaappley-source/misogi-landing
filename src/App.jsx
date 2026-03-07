@@ -345,46 +345,89 @@ function ScoreCards({ scores }) {
   );
 }
 
-function BeehiivEmbed() {
-  useEffect(() => {
-    const existing = document.querySelector('script[src="https://subscribe-forms.beehiiv.com/embed.js"]');
-    if (existing) return;
+function EmailCapture({ onSuccess }) {
+  const [email, setEmail] = useState("");
+  const [submitting, setSubmitting] = useState(false);
+  const [error, setError] = useState("");
 
-    const script = document.createElement("script");
-    script.src = "https://subscribe-forms.beehiiv.com/embed.js";
-    script.async = true;
-    document.body.appendChild(script);
-  }, []);
+  const canSubmit = email.trim().includes("@") && !submitting;
+
+  const submit = async (event) => {
+    event?.preventDefault?.();
+    if (!canSubmit) return;
+
+    setSubmitting(true);
+    setError("");
+
+    try {
+      const res = await fetch("/api/subscribe", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: email.trim() }),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        throw new Error(data?.error || "Subscription failed. Please try again.");
+      }
+
+      onSuccess();
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Subscription failed. Please try again.");
+    } finally {
+      setSubmitting(false);
+    }
+  };
 
   return (
-    <div
+    <form
+      onSubmit={submit}
       style={{
         background: PANEL,
         border: `1px solid ${BORDER}`,
         borderRadius: 18,
-        padding: 14,
-        overflow: "hidden",
+        padding: 16,
+        display: "grid",
+        gap: 12,
       }}
     >
-      <iframe
-        title="Beehiiv subscribe form"
-        src="https://subscribe-forms.beehiiv.com/d33da0ae-9ed6-4aa1-8ab3-27b4af6c1aa8"
-        className="beehiiv-embed"
-        data-test-id="beehiiv-embed"
-        frameBorder="0"
-        scrolling="no"
+      <div style={{ display: "grid", gap: 6 }}>
+        <div style={{ fontSize: 14, fontWeight: 800 }}>Enter your email to unlock results</div>
+        <div style={{ fontSize: 13, color: MUTED, lineHeight: 1.6 }}>
+          We’ll send your radar chart and future Misogi updates. Unsubscribe anytime.
+        </div>
+      </div>
+
+      <input
+        value={email}
+        onChange={(e) => setEmail(e.target.value)}
+        placeholder="you@domain.com"
+        type="email"
+        autoComplete="email"
+        inputMode="email"
+        required
         style={{
           width: "100%",
-          minHeight: 260,
-          height: 260,
-          margin: 0,
-          borderRadius: 12,
-          backgroundColor: "transparent",
-          boxShadow: "0 0 #0000",
-          display: "block",
+          borderRadius: 14,
+          padding: "14px 14px",
+          background: "rgba(255,255,255,0.02)",
+          border: `1px solid ${BORDER}`,
+          color: "#fff",
+          outline: "none",
+          fontSize: 14,
         }}
       />
-    </div>
+
+      {error ? (
+        <div style={{ color: "#ffb4b4", fontSize: 13, lineHeight: 1.5 }}>
+          {error}
+        </div>
+      ) : null}
+
+      <Button type="submit" disabled={!canSubmit}>
+        {submitting ? "Subscribing..." : "Unlock my results"} <ArrowRight size={16} />
+      </Button>
+    </form>
   );
 }
 
@@ -499,6 +542,15 @@ function App() {
   };
 
   const currentQuestionNumber = PILLARS.slice(0, currentPillar).reduce((sum, pillar) => sum + pillar.questions.length, 0);
+  const unlockResults = () => {
+    setStage("results");
+    if (typeof window !== "undefined") {
+      const url = new URL(window.location.href);
+      url.searchParams.set(REDIRECT_FLAG, "1");
+      window.history.replaceState({}, "", url.toString());
+    }
+    setTimeout(() => auditRef.current?.scrollIntoView({ behavior: "smooth", block: "start" }), 20);
+  };
 
   return (
     <div style={{ minHeight: "100vh", background: BG, color: "#fff", fontFamily: "Inter, Outfit, system-ui, sans-serif" }}>
@@ -514,7 +566,6 @@ function App() {
         @media (max-width: 640px) {
           .hero-title { font-size: 38px !important; }
           .shell { padding-left: 18px !important; padding-right: 18px !important; }
-          .beehiiv-embed { height: 320px !important; }
         }
       `}</style>
 
@@ -695,15 +746,14 @@ function App() {
                   <div style={{ fontWeight: 800 }}>Audit complete</div>
                 </div>
                 <div style={{ color: "#c7c7c7", lineHeight: 1.7, fontSize: 14 }}>
-                  This version uses the real Beehiiv embed only. There’s no fake unlock button. To reveal results reliably, set your Beehiiv form’s success action to redirect back to this page with
-                  <span style={{ color: GOLD }}> ?{REDIRECT_FLAG}=1</span> on the URL.
+                  Your answers are saved on this device. Enter your email below to subscribe and unlock your radar chart instantly.
                 </div>
               </div>
 
-              <BeehiivEmbed />
+              <EmailCapture onSuccess={unlockResults} />
 
               <div style={{ background: PANEL, border: `1px solid ${BORDER}`, borderRadius: 18, padding: 16 }}>
-                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 8 }}>Recommended Beehiiv redirect</div>
+                <div style={{ fontSize: 14, fontWeight: 700, marginBottom: 8 }}>Optional Beehiiv redirect (backup)</div>
                 <code
                   style={{
                     display: "block",
@@ -717,7 +767,7 @@ function App() {
                   {"https://yourdomain.com/?misogi_subscribed=1"}
                 </code>
                 <div style={{ marginTop: 10, color: MUTED, lineHeight: 1.7, fontSize: 13 }}>
-                  Because Beehiiv’s iframe does not provide a verified success event to this React component, the cleanest real gate is a post-submit redirect. Your audit answers are already saved in session storage, so the radar can unlock after the redirect.
+                  If you ever switch back to a Beehiiv-hosted form, set its success action to redirect to the URL above to unlock results. With the API flow, unlocking happens instantly after a successful subscription.
                 </div>
               </div>
 

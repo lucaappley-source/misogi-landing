@@ -31,23 +31,28 @@ git push -u origin main
 3. Update DNS at your registrar to point to Vercel
 
 ### 4. Wire up email collection
+This project ships with a Beehiiv-backed email gate:
 
-Replace the `handleSubmit` function in `src/App.jsx` with your email service API call. Example for ConvertKit:
+- The UI calls `POST /api/subscribe` from `src/App.jsx`
+- `/api/subscribe` is a Vercel Serverless Function that forwards the email to Beehiiv (so your API key is never exposed to the browser)
 
-```javascript
-const handleSubmit = async () => {
-  if (!email.includes("@")) return;
-  await fetch("https://api.convertkit.com/v3/forms/YOUR_FORM_ID/subscribe", {
-    method: "POST",
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({
-      api_key: "YOUR_API_KEY",
-      email: email,
-    }),
-  });
-  setSubmitted(true);
-};
+#### Vercel environment variables
+
+Set these in Vercel: **Project → Settings → Environment Variables**
+
+- **`BEEHIIV_API_KEY`**: your Beehiiv API key
+- **`BEEHIIV_PUBLICATION_ID`**: the publication ID you want to subscribe users to
+
+#### Local development with the API route
+
+Vite’s dev server won’t run Vercel `/api` routes by itself. For local end-to-end testing, use the Vercel CLI:
+
+```bash
+npm i
+npx vercel dev
 ```
+
+Then open the URL it prints and try the audit flow through to the email gate.
 
 ## Local development
 
