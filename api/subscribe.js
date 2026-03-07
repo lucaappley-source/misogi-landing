@@ -10,6 +10,14 @@ const isValidEmail = (value) => {
   return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
 };
 
+const normalizePublicationId = (value) => {
+  if (typeof value !== "string") return "";
+  const trimmed = value.trim();
+  if (/^pub_[0-9a-fA-F-]+$/.test(trimmed)) return trimmed;
+  if (/^[0-9a-fA-F-]{36}$/.test(trimmed)) return `pub_${trimmed}`;
+  return trimmed;
+};
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -17,10 +25,17 @@ export default async function handler(req, res) {
   }
 
   const { BEEHIIV_API_KEY, BEEHIIV_PUBLICATION_ID } = process.env;
+  const publicationId = normalizePublicationId(BEEHIIV_PUBLICATION_ID);
 
-  if (!BEEHIIV_API_KEY || !BEEHIIV_PUBLICATION_ID) {
+  if (!BEEHIIV_API_KEY || !publicationId) {
     return json(res, 500, {
       error: "Server is missing Beehiiv configuration.",
+    });
+  }
+
+  if (!/^pub_[0-9a-fA-F-]+$/.test(publicationId)) {
+    return json(res, 500, {
+      error: 'Invalid Beehiiv publication id. Expected format "pub_<uuid>".',
     });
   }
 
@@ -37,7 +52,7 @@ export default async function handler(req, res) {
   }
 
   try {
-    const upstream = await fetch(`https://api.beehiiv.com/v2/publications/${BEEHIIV_PUBLICATION_ID}/subscriptions`, {
+    const upstream = await fetch(`https://api.beehiiv.com/v2/publications/${publicationId}/subscriptions`, {
       method: "POST",
       headers: {
         Authorization: `Bearer ${BEEHIIV_API_KEY}`,
