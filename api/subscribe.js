@@ -18,6 +18,15 @@ const normalizePublicationId = (value) => {
   return trimmed;
 };
 
+const redactEmailForLogs = (email) => {
+  if (typeof email !== "string") return "";
+  const trimmed = email.trim();
+  const at = trimmed.indexOf("@");
+  if (at <= 1) return "***";
+  const domain = trimmed.slice(at + 1);
+  return `${trimmed[0]}***@${domain}`;
+};
+
 export default async function handler(req, res) {
   if (req.method !== "POST") {
     res.setHeader("Allow", "POST");
@@ -26,6 +35,7 @@ export default async function handler(req, res) {
 
   const { BEEHIIV_API_KEY, BEEHIIV_PUBLICATION_ID } = process.env;
   const publicationId = normalizePublicationId(BEEHIIV_PUBLICATION_ID);
+  const requestId = req.headers["x-vercel-id"] || req.headers["x-request-id"] || "";
 
   if (!BEEHIIV_API_KEY || !publicationId) {
     return json(res, 500, {
@@ -52,6 +62,7 @@ export default async function handler(req, res) {
   }
 
   try {
+    console.log("[subscribe] start", { requestId, publicationId, email: redactEmailForLogs(email) });
     const upstream = await fetch(`https://api.beehiiv.com/v2/publications/${publicationId}/subscriptions`, {
       method: "POST",
       headers: {
@@ -67,6 +78,12 @@ export default async function handler(req, res) {
     });
 
     const upstreamJson = await upstream.json().catch(() => null);
+    console.log("[subscribe] beehiiv response", {
+      requestId,
+      ok: upstream.ok,
+      status: upstream.status,
+      bodyKeys: upstreamJson && typeof upstreamJson === "object" ? Object.keys(upstreamJson) : null,
+    });
 
     if (!upstream.ok) {
       const message =
@@ -75,12 +92,20 @@ export default async function handler(req, res) {
         (Array.isArray(upstreamJson?.errors) ? upstreamJson.errors.map((e) => e?.message).filter(Boolean).join(", ") : "") ||
         "Beehiiv subscription failed.";
 
-      return json(res, upstream.status, { error: message });
+      return json(res, upstream.status, { error: message, requestId });
     }
 
-    return json(res, 200, { ok: true });
+    const data = upstreamJson?.data || upstreamJson;
+    return json(res, 200, {
+      ok: true,
+      requestId,
+      beehiiv: {
+        id: data?.id || null,
+        status: data?.status || null,
+      },
+    });
   } catch {
-    return json(res, 502, { error: "Failed to reach Beehiiv. Please try again." });
+    return json(res, 502, { error: "Failed to reach Beehiiv. Please try again.", requestId });
   }
 }
 
