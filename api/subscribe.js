@@ -96,12 +96,39 @@ export default async function handler(req, res) {
     }
 
     const data = upstreamJson?.data || upstreamJson;
+    const subscriberStatus = data?.status || null;
+
+    console.log("[subscribe] subscriber status", {
+      requestId,
+      subscriberStatus,
+      subscriberId: data?.id || null,
+    });
+
+    // Beehiiv returns 201 even for "validating" / "invalid" emails.
+    // Treat those as soft failures so the UI can inform the user.
+    if (subscriberStatus === "invalid") {
+      return json(res, 422, {
+        error: "That email couldn't be verified. Please check for typos or use a different address.",
+        requestId,
+        beehiiv: { id: data?.id || null, status: subscriberStatus },
+      });
+    }
+
+    if (subscriberStatus === "validating") {
+      return json(res, 200, {
+        ok: true,
+        pending: true,
+        requestId,
+        beehiiv: { id: data?.id || null, status: subscriberStatus },
+      });
+    }
+
     return json(res, 200, {
       ok: true,
       requestId,
       beehiiv: {
         id: data?.id || null,
-        status: data?.status || null,
+        status: subscriberStatus,
       },
     });
   } catch {
