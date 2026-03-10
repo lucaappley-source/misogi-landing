@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Briefcase, Wallet, Activity, Users, Heart, BookOpen, Palette, ArrowRight, Check, Copy, Crown, Star, Shield, Zap, Target, Layers, Mountain, BookText, TrendingUp, Globe, Rocket, Dumbbell } from "lucide-react";
+import { Briefcase, Wallet, Activity, Users, Heart, BookOpen, Palette, ArrowRight, Check, Copy, Crown, Star, Shield, Zap, Target, Layers, Mountain, PenLine, TrendingUp, Globe, Rocket, Dumbbell } from "lucide-react";
 
 const PILLARS = [
   { key:"business",name:"Business",fullName:"Business & Career",hex:"#6B8CAE",Icon:Briefcase,questions:[{q:"How fulfilled are you in your current career?",labels:["Miserable","Unfulfilled","Okay","Good","Thriving"]},{q:"How much progress are you making toward your professional goals?",labels:["None","Very little","Some","Solid","Rapid"]}]},
@@ -18,7 +18,7 @@ const MISOGI_EXAMPLES = [
   { title: "Build a \u00a3100,000 investment portfolio", Icon: TrendingUp },
   { title: "Climb Kilimanjaro", Icon: Mountain },
   { title: "Launch a company", Icon: Rocket },
-  { title: "Write a book", Icon: BookText },
+  { title: "Write a book", Icon: PenLine },
   { title: "Become fluent in Spanish", Icon: Globe },
 ];
 
