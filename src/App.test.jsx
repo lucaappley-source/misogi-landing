@@ -11,7 +11,7 @@ describe('Email capture forms', () => {
     vi.stubGlobal('fetch', fetchMock)
   })
 
-  describe('Hero form (Claim My Spot)', () => {
+  describe('Hero form (Join the Founding Challengers)', () => {
     it('calls POST /api/subscribe with email and shows success when API returns 200', async () => {
       fetchMock.mockResolvedValueOnce({
         ok: true,
@@ -20,7 +20,7 @@ describe('Email capture forms', () => {
 
       render(<App />)
       const input = screen.getByPlaceholderText('your@email.com')
-      const button = screen.getByRole('button', { name: /claim my spot/i })
+      const button = screen.getByRole('button', { name: /join the founding challengers/i })
 
       await userEvent.type(input, 'test@example.com')
       await userEvent.click(button)
@@ -48,7 +48,7 @@ describe('Email capture forms', () => {
 
       render(<App />)
       const input = screen.getByPlaceholderText('your@email.com')
-      const button = screen.getByRole('button', { name: /claim my spot/i })
+      const button = screen.getByRole('button', { name: /join the founding challengers/i })
 
       await userEvent.type(input, 'test@example.com')
       await userEvent.click(button)
@@ -61,7 +61,7 @@ describe('Email capture forms', () => {
     it('does not submit when email is invalid (no @)', async () => {
       render(<App />)
       const input = screen.getByPlaceholderText('your@email.com')
-      const button = screen.getByRole('button', { name: /claim my spot/i })
+      const button = screen.getByRole('button', { name: /join the founding challengers/i })
 
       await userEvent.type(input, 'notanemail')
       await userEvent.click(button)

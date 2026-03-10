@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { Briefcase, Wallet, Activity, Users, Heart, BookOpen, Palette, ArrowRight, Check, Copy, Crown, Star, Shield, Zap, Target, Layers } from "lucide-react";
+import { Briefcase, Wallet, Activity, Users, Heart, BookOpen, Palette, ArrowRight, Check, Copy, Crown, Star, Shield, Zap, Target, Layers, Mountain, BookText, TrendingUp, Globe, Rocket, Dumbbell } from "lucide-react";
 
 const PILLARS = [
   { key:"business",name:"Business",fullName:"Business & Career",hex:"#6B8CAE",Icon:Briefcase,questions:[{q:"How fulfilled are you in your current career?",labels:["Miserable","Unfulfilled","Okay","Good","Thriving"]},{q:"How much progress are you making toward your professional goals?",labels:["None","Very little","Some","Solid","Rapid"]}]},
@@ -12,6 +12,15 @@ const PILLARS = [
 ];
 
 const TIERS = [{label:"Founding 100",count:100,active:true,icon:Crown},{label:"First 1,000",count:1000,active:false,icon:Star},{label:"10,000",count:10000,active:false,icon:Shield},{label:"100,000",count:100000,active:false,icon:null}];
+
+const MISOGI_EXAMPLES = [
+  { title: "Run a marathon", Icon: Dumbbell },
+  { title: "Build a \u00a3100,000 investment portfolio", Icon: TrendingUp },
+  { title: "Climb Kilimanjaro", Icon: Mountain },
+  { title: "Launch a company", Icon: Rocket },
+  { title: "Write a book", Icon: BookText },
+  { title: "Become fluent in Spanish", Icon: Globe },
+];
 
 function BreathingRadar({ size=280 }) {
   const [offsets,setOffsets]=useState([0,0,0,0,0,0,0]);
@@ -26,42 +35,381 @@ function BreathingRadar({ size=280 }) {
 
 function MiniRadar({scores,size=140,color="#D4A84B"}){const cx=size/2,cy=size/2,r=size*0.38,n=7;const pt=(i,v)=>{const a=(Math.PI*2*i)/n-Math.PI/2;const d=(v/10)*r;return[cx+d*Math.cos(a),cy+d*Math.sin(a)];};const rpt=(i,s)=>{const a=(Math.PI*2*i)/n-Math.PI/2;const d=s*r;return[cx+d*Math.cos(a),cy+d*Math.sin(a)];};const dp=scores.map((s,i)=>pt(i,s));const path=dp.map((p,i)=>`${i?"L":"M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ")+"Z";return(<svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>{[0.5,1].map((ring,ri)=>{const pts=Array.from({length:n},(_,j)=>rpt(j,ring));return <path key={ri} d={pts.map((p,j)=>`${j?"L":"M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ")+"Z"} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="0.5"/>;})}<path d={path} fill={`${color}15`} stroke={color} strokeWidth="1.5" strokeLinejoin="round" opacity={0.7}/>{dp.map((p,i)=><circle key={i} cx={p[0]} cy={p[1]} r={2} fill={color} opacity={0.7}/>)}</svg>);}
 
-function PhoneMockup({children,label,description}){return(<div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:12,flex:1,minWidth:0}}><div style={{width:"100%",maxWidth:160,aspectRatio:"9/16",background:"#0A0A0A",borderRadius:20,border:"1.5px solid rgba(255,255,255,0.06)",overflow:"hidden",display:"flex",flexDirection:"column",position:"relative"}}><div style={{height:20,display:"flex",alignItems:"flex-end",justifyContent:"center",flexShrink:0}}><div style={{width:48,height:12,background:"#0A0A0A",borderRadius:8,border:"0.5px solid rgba(255,255,255,0.06)"}}/></div><div style={{flex:1,overflow:"hidden",display:"flex",flexDirection:"column",padding:"6px 8px"}}>{children}</div></div><div style={{textAlign:"center"}}><div style={{fontSize:13,fontWeight:700,color:"#fff"}}>{label}</div><div style={{fontSize:11,color:"#444",marginTop:2,lineHeight:1.4}}>{description}</div></div></div>);}
-
-function AppPreview(){return(<div style={{display:"flex",gap:16,justifyContent:"center"}}><PhoneMockup label="See your shape" description="7 pillars as one living radar."><div style={{textAlign:"center",padding:"4px 0 2px"}}><div style={{fontSize:6,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.1em"}}>EXPANSION SCORE</div><div style={{fontSize:18,fontWeight:800,color:"#fff",fontFamily:"'JetBrains Mono',monospace"}}>7.4</div></div><div style={{display:"flex",justifyContent:"center"}}><MiniRadar scores={[8.2,7.5,6.8,7.0,8.5,7.2,9.0]} size={110}/></div><div style={{display:"flex",flexDirection:"column",gap:2,marginTop:4}}>{[{n:"Health",s:"8.5",c:"#B07A7A"},{n:"Business",s:"7.2",c:"#6B8CAE"},{n:"Growth",s:"6.8",c:"#A09570"}].map((p,i)=>(<div key={i} style={{display:"flex",alignItems:"center",gap:4,padding:"3px 5px",background:"rgba(255,255,255,0.02)",borderRadius:4,border:"0.5px solid rgba(255,255,255,0.04)"}}><div style={{width:4,height:4,borderRadius:2,background:p.c,flexShrink:0}}/><div style={{fontSize:5.5,color:"#888",flex:1}}>{p.n}</div><div style={{fontSize:6,fontWeight:800,color:p.c,fontFamily:"'JetBrains Mono',monospace"}}>{p.s}</div></div>))}</div></PhoneMockup><PhoneMockup label="Daily execution" description="One list. Check off what matters."><div style={{padding:"4px 0 6px"}}><div style={{fontSize:6,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.1em"}}>TODAY'S PROGRESS</div><div style={{display:"flex",alignItems:"center",gap:4,marginTop:2}}><div style={{flex:1,height:2,borderRadius:1,background:"rgba(255,255,255,0.04)"}}><div style={{height:2,borderRadius:1,background:"#D4A84B",width:"65%",opacity:0.6}}/></div><div style={{fontSize:5.5,fontWeight:700,color:"#D4A84B",fontFamily:"'JetBrains Mono',monospace"}}>7/11</div></div></div><div style={{display:"flex",flexDirection:"column",gap:2}}>{[{t:"Interval session",c:"#B07A7A",done:true},{t:"Deep work 2hrs",c:"#6B8CAE",done:true},{t:"Read 20 pages",c:"#A09570",done:true},{t:"Call family",c:"#8B85AA",done:false},{t:"Meal prep",c:"#B07A7A",done:false},{t:"Budget review",c:"#7A9E8C",done:false},{t:"Date night plan",c:"#A0788E",done:false}].map((h,i)=>(<div key={i} style={{display:"flex",alignItems:"center",gap:4,padding:"3.5px 5px",background:h.done?"rgba(212,168,75,0.04)":"rgba(255,255,255,0.015)",borderRadius:4,border:"0.5px solid rgba(255,255,255,0.03)"}}><div style={{width:8,height:8,borderRadius:2.5,background:h.done?"rgba(212,168,75,0.2)":"rgba(255,255,255,0.04)",border:h.done?"0.5px solid rgba(212,168,75,0.4)":"0.5px solid rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>{h.done&&<span style={{fontSize:5,color:"#D4A84B"}}>✓</span>}</div><div style={{width:3,height:3,borderRadius:2,background:h.c,opacity:0.6,flexShrink:0}}/><div style={{fontSize:5.5,color:h.done?"#555":"#ccc",textDecoration:h.done?"line-through":"none",textDecorationColor:"#333"}}>{h.t}</div></div>))}</div></PhoneMockup><PhoneMockup label="Goal queue" description="Complete. Promote. Always moving."><div style={{padding:"4px 0 4px"}}><div style={{fontSize:6,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.1em",marginBottom:4}}>ACTIVE MISSION</div><div style={{padding:"5px 6px",background:"rgba(255,255,255,0.025)",borderRadius:5,border:"0.5px solid rgba(255,255,255,0.05)",marginBottom:6}}><div style={{display:"flex",alignItems:"center",gap:3,marginBottom:2}}><Activity size={7} color="#B07A7A" strokeWidth={2}/><span style={{fontSize:6,fontWeight:700,color:"#fff"}}>Run sub 20 min 5km</span></div><div style={{fontSize:5,color:"#444"}}>3 habits · Score: 8.5/10</div></div><div style={{fontSize:6,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.1em",marginBottom:3}}>GOAL QUEUE</div>{[{t:"Build muscle — gain 5kg",n:1},{t:"Marathon under 4hrs",n:2},{t:"Master handstand",n:3}].map((g,i)=>(<div key={i} style={{display:"flex",alignItems:"center",gap:4,padding:"3px 5px",background:"rgba(255,255,255,0.015)",borderRadius:3,border:"0.5px solid rgba(255,255,255,0.03)",marginBottom:2}}><div style={{width:8,height:8,borderRadius:3,background:i===0?"rgba(212,168,75,0.1)":"rgba(255,255,255,0.03)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:5,fontWeight:800,color:i===0?"#D4A84B":"#333",fontFamily:"'JetBrains Mono',monospace",flexShrink:0}}>{g.n}</div><div style={{fontSize:5.5,color:i===0?"#ccc":"#555"}}>{g.t}</div></div>))}<div style={{fontSize:6,fontWeight:700,color:"#1A1A1A",letterSpacing:"0.1em",marginTop:6,marginBottom:3}}>COMPLETED</div>{["Lose 10kg","Couch to 5k"].map((g,i)=>(<div key={i} style={{display:"flex",alignItems:"center",gap:4,padding:"2.5px 5px",marginBottom:1.5}}><div style={{width:7,height:7,borderRadius:2.5,background:"rgba(212,168,75,0.1)",display:"flex",alignItems:"center",justifyContent:"center"}}><span style={{fontSize:4,color:"#D4A84B"}}>✓</span></div><div style={{fontSize:5,color:"#333",textDecoration:"line-through",textDecorationColor:"#1A1A1A"}}>{g}</div></div>))}</div></PhoneMockup></div>);}
-
-function ScoringExplainer(){return(<div style={{display:"flex",gap:12,alignItems:"stretch"}}>{[{step:"1",title:"Track habits",desc:"Each pillar has habits with targets. Check them off daily.",icon:<Zap size={18} color="#D4A84B" strokeWidth={1.8}/>,visual:(<div style={{display:"flex",flexDirection:"column",gap:4,marginTop:8}}>{[{t:"Gym session",d:"3/3"},{t:"Read 20 pages",d:"5/7"},{t:"Budget review",d:"1/1"}].map((h,i)=>(<div key={i} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"6px 8px",background:"rgba(255,255,255,0.02)",borderRadius:6,border:"0.5px solid rgba(255,255,255,0.04)"}}><span style={{fontSize:10,color:"#999"}}>{h.t}</span><span style={{fontSize:9,fontWeight:700,color:"#D4A84B",fontFamily:"'JetBrains Mono',monospace"}}>{h.d}</span></div>))}</div>)},{step:"2",title:"Pillar scores",desc:"Habit completion averages into a rolling score out of 10.",icon:<Target size={18} color="#D4A84B" strokeWidth={1.8}/>,visual:(<div style={{display:"flex",flexDirection:"column",gap:6,marginTop:8}}>{[{n:"Health",s:8.5,c:"#B07A7A"},{n:"Growth",s:6.8,c:"#A09570"},{n:"Finance",s:7.2,c:"#7A9E8C"}].map((p,i)=>(<div key={i}><div style={{display:"flex",justifyContent:"space-between",marginBottom:2}}><span style={{fontSize:10,color:"#888"}}>{p.n}</span><span style={{fontSize:10,fontWeight:700,color:p.c,fontFamily:"'JetBrains Mono',monospace"}}>{p.s}</span></div><div style={{height:3,borderRadius:2,background:"rgba(255,255,255,0.04)"}}><div style={{height:3,borderRadius:2,background:p.c,width:`${p.s*10}%`,opacity:0.5}}/></div></div>))}</div>)},{step:"3",title:"Radar expands",desc:"All 7 scores form your life shape. Watch it grow.",icon:<Layers size={18} color="#D4A84B" strokeWidth={1.8}/>,visual:(<div style={{display:"flex",justifyContent:"center",marginTop:4}}><MiniRadar scores={[8.2,7.5,6.8,7.0,8.5,7.2,9.0]} size={90}/></div>)}].map((s,i)=>(<div key={i} style={{flex:1,padding:"16px 14px",background:"rgba(255,255,255,0.02)",borderRadius:14,border:"1px solid rgba(255,255,255,0.04)",display:"flex",flexDirection:"column"}}><div style={{display:"flex",alignItems:"center",gap:8,marginBottom:6}}><div style={{width:28,height:28,borderRadius:8,background:"rgba(212,168,75,0.08)",border:"1px solid rgba(212,168,75,0.15)",display:"flex",alignItems:"center",justifyContent:"center"}}>{s.icon}</div><div><div style={{fontSize:9,fontWeight:700,color:"#D4A84B",letterSpacing:"0.08em"}}>STEP {s.step}</div><div style={{fontSize:13,fontWeight:700,color:"#fff"}}>{s.title}</div></div></div><div style={{fontSize:11,color:"#444",lineHeight:1.5}}>{s.desc}</div><div style={{flex:1}}>{s.visual}</div></div>))}</div>);}
-
-function MilestoneBar(){const activeIdx=TIERS.findIndex(t=>t.active);return(<div style={{padding:"0 4px",marginBottom:20}}><div style={{position:"relative",height:2}}><div style={{position:"absolute",left:24,right:24,top:0,height:2,background:"rgba(255,255,255,0.04)"}}/><div style={{position:"absolute",left:24,top:0,height:2,background:"linear-gradient(90deg,#D4A84B,rgba(212,168,75,0.15))",width:`${(activeIdx/(TIERS.length-1))*100}%`,maxWidth:"calc(100% - 48px)"}}/></div><div style={{display:"flex",justifyContent:"space-between",position:"relative",zIndex:1,marginTop:10}}>{TIERS.map((tier,i)=>{const isActive=i===activeIdx;const isPast=i<activeIdx;const Icon=tier.icon;return(<div key={i} style={{display:"flex",flexDirection:"column",alignItems:"center",gap:6,flex:1}}><div style={{width:isActive?44:32,height:isActive?44:32,borderRadius:isActive?13:10,background:isActive?"rgba(212,168,75,0.15)":isPast?"rgba(212,168,75,0.08)":"rgba(255,255,255,0.02)",border:isActive?"1.5px solid rgba(212,168,75,0.4)":isPast?"1px solid rgba(212,168,75,0.15)":"1px solid rgba(255,255,255,0.05)",display:"flex",alignItems:"center",justifyContent:"center",boxShadow:isActive?"0 0 20px rgba(212,168,75,0.15)":"none"}}>{isPast?<Check size={14} color="#D4A84B" strokeWidth={2}/>:Icon?<Icon size={isActive?18:14} color={isActive?"#D4A84B":"#333"} strokeWidth={1.8}/>:<span style={{fontSize:isActive?12:10,color:isActive?"#D4A84B":"#333",fontWeight:700}}>∞</span>}</div><div style={{textAlign:"center"}}><div style={{fontSize:isActive?11:9,fontWeight:isActive?700:500,color:isActive?"#D4A84B":isPast?"rgba(212,168,75,0.5)":"#2A2A2A",letterSpacing:isActive?"0.05em":0}}>{tier.label}</div>{isActive&&<div style={{fontSize:8,color:"#555",marginTop:2}}>NOW OPEN</div>}</div></div>);})}</div></div>);}
-
 function BeehiivEmbed(){const ref=useRef(null);useEffect(()=>{if(!ref.current)return;const s=document.createElement("script");s.src="https://subscribe-forms.beehiiv.com/embed.js";s.async=true;ref.current.appendChild(s);return()=>{if(ref.current&&ref.current.contains(s))ref.current.removeChild(s);};},[]);return(<div ref={ref} style={{marginTop:12}}><iframe src="https://subscribe-forms.beehiiv.com/175f2ea4-025f-4c91-9942-fe81f12efcfb" className="beehiiv-embed" data-test-id="beehiiv-embed" frameBorder="0" scrolling="no" style={{width:"100%",maxWidth:560,height:315,margin:0,borderRadius:0,backgroundColor:"transparent",boxShadow:"none"}}/></div>);}
 
-function EmailCapture({variant,onSubmit,submitted}){const[email,setEmail]=useState("");const[submitting,setSubmitting]=useState(false);const[error,setError]=useState("");const[showFallback,setShowFallback]=useState(false);const valid=email.includes("@")&&email.includes(".");const showSuccess=submitted&&variant==="hero";const handle=async()=>{if(!valid||submitting)return;setSubmitting(true);setError("");try{await onSubmit(email.trim());}catch(e){const msg=e instanceof Error?e.message:"Something went wrong. Please try again.";setError(msg);if(variant!=="gate")setShowFallback(true);}finally{setSubmitting(false);}};if(showSuccess)return(<div style={{textAlign:"center",padding:"20px 0"}}><div style={{width:48,height:48,borderRadius:14,background:"rgba(212,168,75,0.12)",border:"1px solid rgba(212,168,75,0.25)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 12px"}}><Check size={24} color="#D4A84B" strokeWidth={2}/></div><div style={{fontSize:18,fontWeight:700,color:"#fff",marginBottom:4}}>You're in.</div><div style={{fontSize:13,color:"#444"}}>We'll contact you before anyone else.</div></div>);if(showFallback)return(<div><div style={{fontSize:13,color:"#999",marginBottom:4,lineHeight:1.5}}>Having trouble? Subscribe directly below:</div><BeehiivEmbed/></div>);return(<div><div style={{display:"flex",gap:8}}><input type="email" value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handle()} placeholder="your@email.com" style={{flex:1,padding:"14px 16px",background:"rgba(255,255,255,0.03)",borderRadius:12,border:"1px solid rgba(255,255,255,0.08)",fontSize:15,color:"#fff",fontFamily:"'Outfit',sans-serif",outline:"none",boxSizing:"border-box"}}/><div onClick={handle} style={{padding:"14px 24px",borderRadius:12,fontSize:14,fontWeight:700,cursor:valid&&!submitting?"pointer":"default",whiteSpace:"nowrap",background:valid&&!submitting?"#D4A84B":"#111",color:valid&&!submitting?"#000":"#333",display:"flex",alignItems:"center",gap:6,transition:"all 0.2s",opacity:submitting?0.7:1}}>{submitting?"Submitting...":variant==="hero"?"Claim My Spot":"Join Waitlist"} <ArrowRight size={16} strokeWidth={2.5}/></div></div>{error&&<div style={{fontSize:12,color:"#ffb4b4",marginTop:8,lineHeight:1.4}}>{error}</div>}{variant==="hero"&&<div style={{fontSize:11,color:"#1E1E1E",marginTop:8,textAlign:"center"}}>No spam. One email when we launch.</div>}</div>);}
+function EmailCapture({variant,onSubmit,submitted}){const[email,setEmail]=useState("");const[submitting,setSubmitting]=useState(false);const[error,setError]=useState(false);const[showFallback,setShowFallback]=useState(false);const valid=email.includes("@")&&email.includes(".");const showSuccess=submitted&&(variant==="hero"||variant==="final");const handle=async()=>{if(!valid||submitting)return;setSubmitting(true);setError("");try{await onSubmit(email.trim());}catch(e){const msg=e instanceof Error?e.message:"Something went wrong. Please try again.";setError(msg);if(variant!=="gate")setShowFallback(true);}finally{setSubmitting(false);}};if(showSuccess)return(<div style={{textAlign:"center",padding:"20px 0"}}><div style={{width:48,height:48,borderRadius:14,background:"rgba(212,168,75,0.12)",border:"1px solid rgba(212,168,75,0.25)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 12px"}}><Check size={24} color="#D4A84B" strokeWidth={2}/></div><div style={{fontSize:18,fontWeight:700,color:"#fff",marginBottom:4}}>You're in.</div><div style={{fontSize:13,color:"#444"}}>We'll email you when the Misogi app opens.</div></div>);if(showFallback)return(<div><div style={{fontSize:13,color:"#999",marginBottom:4,lineHeight:1.5}}>Having trouble? Subscribe directly below:</div><BeehiivEmbed/></div>);const ctaLabel=submitting?"Submitting...":"Join the Founding Challengers";const defaultLabel=submitting?"Submitting...":"Join Waitlist";return(<div><div style={{display:"flex",gap:8,flexWrap:"wrap"}}><input type="email" value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&handle()} placeholder="your@email.com" style={{flex:1,minWidth:0,padding:"14px 16px",background:"rgba(255,255,255,0.03)",borderRadius:12,border:"1px solid rgba(255,255,255,0.08)",fontSize:15,color:"#fff",fontFamily:"'Outfit',sans-serif",outline:"none",boxSizing:"border-box"}}/><div role="button" onClick={handle} style={{padding:"14px 24px",borderRadius:12,fontSize:14,fontWeight:700,cursor:valid&&!submitting?"pointer":"default",whiteSpace:"nowrap",background:valid&&!submitting?"#D4A84B":"#111",color:valid&&!submitting?"#000":"#333",display:"flex",alignItems:"center",gap:6,transition:"all 0.2s",opacity:submitting?0.7:1}}>{variant==="gate"?defaultLabel:ctaLabel} <ArrowRight size={16} strokeWidth={2.5}/></div></div>{error&&<div style={{fontSize:12,color:"#ffb4b4",marginTop:8,lineHeight:1.4}}>{error}</div>}{(variant==="hero"||variant==="final")&&<div style={{fontSize:11,color:"#444",marginTop:8,textAlign:"center",lineHeight:1.5}}><div>Early access opening soon</div><div style={{opacity:0.9}}>Limited founding members</div></div>}</div>);}
 
-function QuestionScreen({pillar,pillarIdx,answers,setAnswers,onNext,onBack,total}){const[show,setShow]=useState(false);useEffect(()=>{setShow(false);const t=setTimeout(()=>setShow(true),50);return()=>clearTimeout(t);},[pillarIdx]);const Icon=pillar.Icon;const current=answers[pillarIdx]||pillar.questions.map(()=>0);const setRating=(qi,val)=>{const u=[...current];u[qi]=val;const n=[...answers];n[pillarIdx]=u;setAnswers(n);};const allAnswered=current.every(v=>v>0);return(<div style={{opacity:show?1:0,transition:"opacity 0.4s",display:"flex",flexDirection:"column",gap:24}}><div style={{display:"flex",gap:4}}>{Array.from({length:total},(_,i)=>(<div key={i} style={{flex:1,height:3,borderRadius:2,background:i<pillarIdx?"#D4A84B":i===pillarIdx?"rgba(212,168,75,0.4)":"rgba(255,255,255,0.04)"}}/>))}</div><div style={{display:"flex",alignItems:"center",gap:14}}><div style={{width:48,height:48,borderRadius:13,background:`${pillar.hex}15`,border:`1px solid ${pillar.hex}30`,display:"flex",alignItems:"center",justifyContent:"center"}}><Icon size={22} color={pillar.hex} strokeWidth={1.8}/></div><div><div style={{fontSize:10,fontWeight:700,color:"#333",letterSpacing:"0.1em"}}>PILLAR {pillarIdx+1} OF {total}</div><div style={{fontSize:22,fontWeight:800,color:"#fff",letterSpacing:"-0.02em"}}>{pillar.fullName}</div></div></div><div style={{display:"flex",flexDirection:"column",gap:20}}>{pillar.questions.map((q,qi)=>(<div key={qi}><div style={{fontSize:15,fontWeight:500,color:"#ccc",lineHeight:1.5,marginBottom:14}}>{q.q}</div><div style={{display:"flex",gap:6}}>{[1,2,3,4,5].map(val=>{const sel=current[qi]===val;return(<div key={val} onClick={()=>setRating(qi,val)} style={{flex:1,padding:"12px 4px",borderRadius:10,cursor:"pointer",background:sel?`${pillar.hex}20`:"rgba(255,255,255,0.025)",border:sel?`1.5px solid ${pillar.hex}50`:"1px solid rgba(255,255,255,0.05)",display:"flex",flexDirection:"column",alignItems:"center",gap:4,transition:"all 0.15s"}}><div style={{fontSize:18,fontWeight:800,color:sel?pillar.hex:"#333",fontFamily:"'JetBrains Mono',monospace"}}>{val}</div><div style={{fontSize:8,color:sel?pillar.hex:"#2A2A2A",textAlign:"center",lineHeight:1.2,fontWeight:500,minHeight:18}}>{q.labels[val-1]}</div></div>);})}</div></div>))}</div><div style={{display:"flex",gap:8}}>{pillarIdx>0&&<div onClick={onBack} style={{padding:"14px 20px",borderRadius:12,fontSize:14,fontWeight:600,background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.06)",color:"#555",cursor:"pointer"}}>Back</div>}<div onClick={allAnswered?onNext:undefined} style={{flex:1,padding:"14px 0",borderRadius:12,fontSize:15,fontWeight:700,textAlign:"center",cursor:allAnswered?"pointer":"default",background:allAnswered?"#D4A84B":"#151515",color:allAnswered?"#000":"#333",transition:"all 0.2s"}}>{pillarIdx===total-1?"See My Results":"Next"}</div></div></div>);}
+function QuestionScreen({pillar,pillarIdx,answers,setAnswers,onNext,onBack,total}){const[show,setShow]=useState(false);useEffect(()=>{setShow(false);const t=setTimeout(()=>setShow(true),50);return()=>clearTimeout(t);},[pillarIdx]);const Icon=pillar.Icon;const current=answers[pillarIdx]||pillar.questions.map(()=>0);const setRating=(qi,val)=>{const u=[...current];u[qi]=val;const n=[...answers];n[pillarIdx]=u;setAnswers(n);};const allAnswered=current.every(v=>v>0);return(<div style={{opacity:show?1:0,transition:"opacity 0.4s",display:"flex",flexDirection:"column",gap:24}}><div style={{display:"flex",gap:4}}>{Array.from({length:total},(_,i)=>(<div key={i} style={{flex:1,height:3,borderRadius:2,background:i<pillarIdx?"#D4A84B":i===pillarIdx?"rgba(212,168,75,0.4)":"rgba(255,255,255,0.04)"}}/>))}</div><div style={{display:"flex",alignItems:"center",gap:14}}><div style={{width:48,height:48,borderRadius:13,background:`${pillar.hex}15`,border:`1px solid ${pillar.hex}30`,display:"flex",alignItems:"center",justifyContent:"center"}}><Icon size={22} color={pillar.hex} strokeWidth={1.8}/></div><div><div style={{fontSize:10,fontWeight:700,color:"#333",letterSpacing:"0.1em"}}>PILLAR {pillarIdx+1} OF {total}</div><div style={{fontSize:22,fontWeight:800,color:"#fff",letterSpacing:"-0.02em"}}>{pillar.fullName}</div></div></div><div style={{display:"flex",flexDirection:"column",gap:20}}>{pillar.questions.map((q,qi)=>(<div key={qi}><div style={{fontSize:15,fontWeight:500,color:"#ccc",lineHeight:1.5,marginBottom:14}}>{q.q}</div><div style={{display:"flex",gap:6}}>{[1,2,3,4,5].map(val=>{const sel=current[qi]===val;return(<div key={val} onClick={()=>setRating(qi,val)} style={{flex:1,padding:"12px 4px",borderRadius:10,cursor:"pointer",background:sel?`${pillar.hex}20`:"rgba(255,255,255,0.025)",border:sel?`1.5px solid ${pillar.hex}50`:"1px solid rgba(255,255,255,0.05)",display:"flex",flexDirection:"column",alignItems:"center",gap:4,transition:"all 0.15s"}}><div style={{fontSize:18,fontWeight:800,color:sel?pillar.hex:"#333",fontFamily:"'JetBrains Mono',monospace"}}>{val}</div><div style={{fontSize:8,color:sel?pillar.hex:"#2A2A2A",textAlign:"center",lineHeight:1.2,fontWeight:500,minHeight:18}}>{q.labels[val-1]}</div></div>);})}</div></div>))}</div><div style={{display:"flex",gap:8}}>{pillarIdx>0&&<div role="button" onClick={onBack} style={{padding:"14px 20px",borderRadius:12,fontSize:14,fontWeight:600,background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.06)",color:"#555",cursor:"pointer"}}>Back</div>}<div role="button" onClick={allAnswered?onNext:undefined} style={{flex:1,padding:"14px 0",borderRadius:12,fontSize:15,fontWeight:700,textAlign:"center",cursor:allAnswered?"pointer":"default",background:allAnswered?"#D4A84B":"#151515",color:allAnswered?"#000":"#333",transition:"all 0.2s"}}>{pillarIdx===total-1?"See My Results":"Next"}</div></div></div>);}
 
 function AuditRadar({scores,size=260}){const[progress,setProgress]=useState(0);useEffect(()=>{let start=null,raf;const ease=t=>t<0.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;function step(ts){if(!start)start=ts;const p=Math.min((ts-start)/1400,1);setProgress(ease(p));if(p<1)raf=requestAnimationFrame(step);}const timer=setTimeout(()=>{raf=requestAnimationFrame(step);},300);return()=>{clearTimeout(timer);if(raf)cancelAnimationFrame(raf);};},[]);const cx=size/2,cy=size/2,r=size*0.30,n=7;const pt=(i,v)=>{const a=(Math.PI*2*i)/n-Math.PI/2;const d=(v/10)*r*progress;return[cx+d*Math.cos(a),cy+d*Math.sin(a)];};const rpt=(i,s)=>{const a=(Math.PI*2*i)/n-Math.PI/2;const d=s*r;return[cx+d*Math.cos(a),cy+d*Math.sin(a)];};const dp=scores.map((s,i)=>pt(i,s));const path=dp.map((p,i)=>`${i?"L":"M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ")+"Z";return(<svg width={size} height={size} viewBox={`0 0 ${size} ${size}`} style={{overflow:"visible"}}>{[0.25,0.5,0.75,1].map((ring,ri)=>{const pts=Array.from({length:n},(_,j)=>rpt(j,ring));return <path key={ri} d={pts.map((p,j)=>`${j?"L":"M"}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(" ")+"Z"} fill="none" stroke="rgba(255,255,255,0.05)" strokeWidth="0.75"/>;})}<path d={path} fill="rgba(212,168,75,0.1)" stroke="#D4A84B" strokeWidth="1.5" strokeLinejoin="round" opacity={progress}/>{dp.map((p,i)=><circle key={i} cx={p[0]} cy={p[1]} r={3} fill="#D4A84B" opacity={progress}/>)}{PILLARS.map((pl,i)=>{const[x,y]=rpt(i,1.45);const Icon=pl.Icon;return(<foreignObject key={i} x={x-22} y={y-16} width={44} height={32} style={{overflow:"visible"}}><div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:1}}><Icon size={11} color={pl.hex} strokeWidth={1.8} style={{opacity:0.4+progress*0.4}}/><span style={{fontSize:7.5,fontWeight:600,color:`rgba(255,255,255,${0.15+progress*0.3})`,fontFamily:"'Outfit',sans-serif",textAlign:"center",lineHeight:1}}>{pl.name}</span></div></foreignObject>);})}</svg>);}
 
-function ResultsScreen({scores,onSubmit,submitted}){const[phase,setPhase]=useState(0);const[copied,setCopied]=useState(false);useEffect(()=>{const t1=setTimeout(()=>setPhase(1),200);const t2=setTimeout(()=>setPhase(2),1200);const t3=setTimeout(()=>setPhase(3),2000);return()=>{clearTimeout(t1);clearTimeout(t2);clearTimeout(t3);};},[]);const avg=(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1);const sorted=scores.map((s,i)=>({score:s,pillar:PILLARS[i]})).sort((a,b)=>b.score-a.score);const strongest=sorted[0];const weakest=sorted[sorted.length-1];const gap=(strongest.score-weakest.score).toFixed(1);const getInsight=()=>{if(parseFloat(avg)>=8)return"You're operating at a high level. The question isn't what to fix — it's what to take from great to elite.";if(parseFloat(avg)<=4)return"You're in a rebuilding phase. The worst thing you can do is try to fix everything. Pick 3 and go deep.";if(parseFloat(gap)>=5)return`There's a ${gap}-point gap between your strongest and weakest pillar. You're overinvesting in ${strongest.pillar.name} at the cost of ${weakest.pillar.name}.`;return`${weakest.pillar.name} is holding you back. Focusing there could have the biggest impact on your overall life quality.`;};return(<div style={{display:"flex",flexDirection:"column"}}><div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"16px 0 8px",opacity:phase>=1?1:0,transition:"opacity 0.8s"}}><AuditRadar scores={scores} size={260}/></div><div style={{textAlign:"center",opacity:phase>=2?1:0,transition:"opacity 0.6s"}}><div style={{fontSize:10,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.15em",marginBottom:4}}>YOUR LIFE SCORE</div><div style={{fontSize:56,fontWeight:800,color:"#D4A84B",letterSpacing:"-0.04em",lineHeight:1,fontFamily:"'JetBrains Mono',monospace"}}>{avg}</div><div style={{fontSize:14,color:"#333",marginTop:2}}>/10</div></div><div style={{opacity:phase>=3?1:0,transition:"opacity 0.6s",marginTop:20}}><div style={{display:"flex",flexDirection:"column",gap:5,marginBottom:16}}>{sorted.map(({score,pillar})=>{const Icon=pillar.Icon;return(<div key={pillar.key} style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:26,height:26,borderRadius:7,background:`${pillar.hex}15`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Icon size={12} color={pillar.hex} strokeWidth={1.8}/></div><div style={{flex:1}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:11,fontWeight:600,color:"#888"}}>{pillar.name}</span><span style={{fontSize:11,fontWeight:700,color:pillar.hex,fontFamily:"'JetBrains Mono',monospace"}}>{score.toFixed(1)}</span></div><div style={{height:3,borderRadius:2,background:"rgba(255,255,255,0.04)"}}><div style={{height:3,borderRadius:2,background:pillar.hex,width:`${score*10}%`,opacity:0.5}}/></div></div></div>);})}</div><div style={{padding:"16px 18px",background:"rgba(212,168,75,0.04)",border:"1px solid rgba(212,168,75,0.1)",borderRadius:12,marginBottom:20}}><div style={{fontSize:9,fontWeight:700,color:"#D4A84B",letterSpacing:"0.1em",marginBottom:4}}>YOUR INSIGHT</div><div style={{fontSize:13,color:"#999",lineHeight:1.6}}>{getInsight()}</div></div><div style={{padding:"20px 18px",background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.05)",borderRadius:14,marginBottom:14}}><div style={{fontSize:16,fontWeight:800,color:"#fff",marginBottom:4}}>Ready to change your score?</div><div style={{fontSize:12,color:"#444",lineHeight:1.6,marginBottom:14}}>Join the Founding 100 — permanent badge + 1 year free premium.</div><EmailCapture variant="results" onSubmit={onSubmit} submitted={submitted}/></div><div onClick={()=>{navigator.clipboard?.writeText(`My Misogi Life Score: ${avg}/10\n\n${sorted.map(s=>`${s.pillar.name}: ${s.score.toFixed(1)}`).join('\n')}\n\nTake yours →`);setCopied(true);setTimeout(()=>setCopied(false),2000);}} style={{padding:"11px 0",borderRadius:10,fontSize:12,fontWeight:600,background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.05)",color:"#666",textAlign:"center",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>{copied?<><Check size={13} color="#D4A84B" strokeWidth={2}/> Copied!</>:<><Copy size={13} color="#666" strokeWidth={1.8}/> Share Results</>}</div></div></div>);}
+function ResultsScreen({scores,onSubmit,submitted}){const[phase,setPhase]=useState(0);const[copied,setCopied]=useState(false);useEffect(()=>{const t1=setTimeout(()=>setPhase(1),200);const t2=setTimeout(()=>setPhase(2),1200);const t3=setTimeout(()=>setPhase(3),2000);return()=>{clearTimeout(t1);clearTimeout(t2);clearTimeout(t3);};},[]);const avg=(scores.reduce((a,b)=>a+b,0)/scores.length).toFixed(1);const sorted=scores.map((s,i)=>({score:s,pillar:PILLARS[i]})).sort((a,b)=>b.score-a.score);const strongest=sorted[0];const weakest=sorted[sorted.length-1];const gap=(strongest.score-weakest.score).toFixed(1);const getInsight=()=>{if(parseFloat(avg)>=8)return"You're operating at a high level. The question isn't what to fix — it's what to take from great to elite.";if(parseFloat(avg)<=4)return"You're in a rebuilding phase. The worst thing you can do is try to fix everything. Pick 3 and go deep.";if(parseFloat(gap)>=5)return`There's a ${gap}-point gap between your strongest and weakest pillar. You're overinvesting in ${strongest.pillar.name} at the cost of ${weakest.pillar.name}.`;return`${weakest.pillar.name} is holding you back. Focusing there could have the biggest impact on your overall life quality.`;};return(<div style={{display:"flex",flexDirection:"column"}}><div style={{display:"flex",flexDirection:"column",alignItems:"center",padding:"16px 0 8px",opacity:phase>=1?1:0,transition:"opacity 0.8s"}}><AuditRadar scores={scores} size={260}/></div><div style={{textAlign:"center",opacity:phase>=2?1:0,transition:"opacity 0.6s"}}><div style={{fontSize:10,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.15em",marginBottom:4}}>YOUR LIFE SCORE</div><div style={{fontSize:56,fontWeight:800,color:"#D4A84B",letterSpacing:"-0.04em",lineHeight:1,fontFamily:"'JetBrains Mono',monospace"}}>{avg}</div><div style={{fontSize:14,color:"#333",marginTop:2}}>/10</div></div><div style={{opacity:phase>=3?1:0,transition:"opacity 0.6s",marginTop:20}}><div style={{display:"flex",flexDirection:"column",gap:5,marginBottom:16}}>{sorted.map(({score,pillar})=>{const Icon=pillar.Icon;return(<div key={pillar.key} style={{display:"flex",alignItems:"center",gap:10}}><div style={{width:26,height:26,borderRadius:7,background:`${pillar.hex}15`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}><Icon size={12} color={pillar.hex} strokeWidth={1.8}/></div><div style={{flex:1}}><div style={{display:"flex",justifyContent:"space-between",marginBottom:3}}><span style={{fontSize:11,fontWeight:600,color:"#888"}}>{pillar.name}</span><span style={{fontSize:11,fontWeight:700,color:pillar.hex,fontFamily:"'JetBrains Mono',monospace"}}>{score.toFixed(1)}</span></div><div style={{height:3,borderRadius:2,background:"rgba(255,255,255,0.04)"}}><div style={{height:3,borderRadius:2,background:pillar.hex,width:`${score*10}%`,opacity:0.5}}/></div></div></div>);})}</div><div style={{padding:"16px 18px",background:"rgba(212,168,75,0.04)",border:"1px solid rgba(212,168,75,0.1)",borderRadius:12,marginBottom:20}}><div style={{fontSize:9,fontWeight:700,color:"#D4A84B",letterSpacing:"0.1em",marginBottom:4}}>YOUR INSIGHT</div><div style={{fontSize:13,color:"#999",lineHeight:1.6}}>{getInsight()}</div></div><div style={{padding:"20px 18px",background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.05)",borderRadius:14,marginBottom:14}}><div style={{fontSize:16,fontWeight:800,color:"#fff",marginBottom:4}}>Ready to change your score?</div><div style={{fontSize:12,color:"#444",lineHeight:1.6,marginBottom:14}}>Join the Founding Challengers and start your Misogi.</div><EmailCapture variant="results" onSubmit={onSubmit} submitted={submitted}/></div><div onClick={()=>{navigator.clipboard?.writeText(`My Misogi Life Score: ${avg}/10\n\n${sorted.map(s=>`${s.pillar.name}: ${s.score.toFixed(1)}`).join('\n')}\n\nTake yours →`);setCopied(true);setTimeout(()=>setCopied(false),2000);}} style={{padding:"11px 0",borderRadius:10,fontSize:12,fontWeight:600,background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.05)",color:"#666",textAlign:"center",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:6}}>{copied?<><Check size={13} color="#D4A84B" strokeWidth={2}/> Copied!</>:<><Copy size={13} color="#666" strokeWidth={1.8}/> Share Results</>}</div></div></div>);}
 
-export default function MisogiFoundingPage(){const[submitted,setSubmitted]=useState(false);const[auditStarted,setAuditStarted]=useState(false);const[currentPillar,setCurrentPillar]=useState(0);const[answers,setAnswers]=useState(PILLARS.map(p=>p.questions.map(()=>0)));const[showResults,setShowResults]=useState(false);const[emailGated,setEmailGated]=useState(false);const[heroShow,setHeroShow]=useState(false);const auditRef=useRef(null);useEffect(()=>{setTimeout(()=>setHeroShow(true),100);},[]);const scores=answers.map(a=>{const avg=a.reduce((x,y)=>x+y,0)/a.length;return Math.round(avg*20)/10;});const subscribe=async(email)=>{const res=await fetch("/api/subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email})});const data=await res.json().catch(()=>({}));if(!res.ok)throw new Error(data?.error||"Subscription failed. Please try again.");setSubmitted(true);};const startAudit=()=>{setAuditStarted(true);setTimeout(()=>auditRef.current?.scrollIntoView({behavior:"smooth",block:"start"}),50);};
-return(<div style={{minHeight:"100vh",background:"#030303",fontFamily:"'Outfit',sans-serif",color:"#fff"}}><link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/><style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}.fade-up{animation:fadeUp 0.8s ease-out forwards;opacity:0;}`}</style><div style={{maxWidth:560,margin:"0 auto",padding:"0 24px"}}>
-{/* NAV */}
-<div style={{display:"flex",alignItems:"center",padding:"32px 0 0"}}><div style={{display:"flex",alignItems:"center",gap:8}}><span style={{fontSize:18,fontWeight:800,letterSpacing:"-0.04em"}}>MISOGI</span><span style={{fontSize:10,color:"#D4A84B",fontWeight:600,opacity:0.4}}>禊</span></div></div>
-{/* 1. HERO */}
-<div style={{padding:"32px 0 24px",opacity:heroShow?1:0,transition:"opacity 0.8s"}}><div style={{display:"flex",justifyContent:"center",marginBottom:4}}><BreathingRadar size={280}/></div><div style={{textAlign:"center",marginBottom:32}}><div className="fade-up" style={{animationDelay:"0.3s"}}><div style={{display:"inline-flex",alignItems:"center",gap:6,padding:"5px 14px",background:"rgba(212,168,75,0.08)",border:"1px solid rgba(212,168,75,0.15)",borderRadius:20,marginBottom:16}}><Crown size={12} color="#D4A84B" strokeWidth={2}/><span style={{fontSize:11,fontWeight:700,color:"#D4A84B",letterSpacing:"0.08em"}}>FOUNDING 100 — NOW OPEN</span></div></div><h1 className="fade-up" style={{fontSize:40,fontWeight:800,letterSpacing:"-0.03em",lineHeight:1.1,margin:"0 0 14px",animationDelay:"0.5s"}}>Your life has<br/>seven pillars.<br/><span style={{color:"#D4A84B",fontStyle:"italic"}}>Most are crumbling.</span></h1><p className="fade-up" style={{fontSize:15,color:"#444",lineHeight:1.7,margin:"0 auto 0",maxWidth:400,animationDelay:"0.7s"}}>Misogi is the first system that tracks whether your life is actually balanced — across career, health, finances, relationships, growth, and more.</p><div className="fade-up" style={{display:"flex",alignItems:"center",justifyContent:"center",gap:16,marginTop:24,animationDelay:"0.9s"}}><div onClick={startAudit} style={{padding:"14px 28px",borderRadius:12,background:"#D4A84B",color:"#000",fontSize:15,fontWeight:700,cursor:"pointer",display:"flex",alignItems:"center",gap:8}}>Take the Life Audit <ArrowRight size={16} strokeWidth={2.5}/></div><span style={{fontSize:12,color:"#333"}}>2 min · free</span></div></div><div style={{height:1,background:"rgba(255,255,255,0.03)"}}/></div>
-{/* 2. APP PREVIEW */}
-<div style={{padding:"28px 0"}}><div style={{fontSize:10,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.15em",marginBottom:8}}>INSIDE THE APP</div><h2 style={{fontSize:26,fontWeight:800,letterSpacing:"-0.02em",lineHeight:1.2,margin:"0 0 20px"}}>Not another habit tracker.<br/><span style={{color:"#555"}}>A life alignment system.</span></h2><AppPreview/><div style={{height:1,background:"rgba(255,255,255,0.03)",marginTop:28}}/></div>
-{/* 3. HOW SCORING WORKS */}
-<div style={{padding:"28px 0"}}><div style={{fontSize:10,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.15em",marginBottom:8}}>HOW IT WORKS</div><h2 style={{fontSize:26,fontWeight:800,letterSpacing:"-0.02em",lineHeight:1.2,margin:"0 0 20px"}}>Three steps to a<br/><span style={{color:"#D4A84B",fontStyle:"italic"}}>life in motion.</span></h2><ScoringExplainer/><div style={{height:1,background:"rgba(255,255,255,0.03)",marginTop:28}}/></div>
-{/* 4. FOUNDING OFFER */}
-<div style={{padding:"28px 0"}}><MilestoneBar/><div style={{padding:"24px 20px",background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.05)",borderRadius:18,marginBottom:20}}><div style={{display:"flex",alignItems:"center",gap:10,marginBottom:12}}><Crown size={20} color="#D4A84B" strokeWidth={1.8}/><div><div style={{fontSize:16,fontWeight:700,color:"#fff"}}>Founding Member</div><div style={{fontSize:11,color:"#444"}}>Be one of the first 100</div></div></div><div style={{display:"flex",gap:12,marginBottom:0}}><div style={{flex:1,padding:"10px 12px",background:"rgba(212,168,75,0.05)",borderRadius:10,border:"1px solid rgba(212,168,75,0.1)"}}><div style={{fontSize:9,fontWeight:700,color:"#D4A84B",letterSpacing:"0.08em",marginBottom:3}}>PERK 1</div><div style={{fontSize:12,fontWeight:600,color:"#ccc"}}>Permanent Founding Member badge</div></div><div style={{flex:1,padding:"10px 12px",background:"rgba(212,168,75,0.05)",borderRadius:10,border:"1px solid rgba(212,168,75,0.1)"}}><div style={{fontSize:9,fontWeight:700,color:"#D4A84B",letterSpacing:"0.08em",marginBottom:3}}>PERK 2</div><div style={{fontSize:12,fontWeight:600,color:"#ccc"}}>1 year free premium access</div></div></div></div><EmailCapture variant="hero" onSubmit={subscribe} submitted={submitted}/></div>
-{/* 6. MR MISOGI QUOTE */}
-<div style={{padding:"24px 0 28px",display:"flex",flexDirection:"column",alignItems:"center"}}><div style={{width:56,height:56,borderRadius:16,background:"rgba(212,168,75,0.06)",border:"1px solid rgba(212,168,75,0.1)",display:"flex",alignItems:"center",justifyContent:"center",marginBottom:16,fontSize:24}}>禊</div><div style={{fontSize:20,fontWeight:300,color:"#666",textAlign:"center",lineHeight:1.6,fontStyle:"italic",maxWidth:380,letterSpacing:"-0.01em"}}>"A life out of balance<br/>is a life out of control."</div><div style={{fontSize:11,fontWeight:600,color:"#222",marginTop:10,letterSpacing:"0.08em"}}>— MR MISOGI</div><div style={{height:1,background:"rgba(255,255,255,0.03)",width:"100%",marginTop:28}}/></div>
-{/* 7. THE 7 PILLARS */}
-<div style={{padding:"0 0 28px"}}><div style={{fontSize:10,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.15em",marginBottom:8}}>THE 7 PILLARS</div><h2 style={{fontSize:26,fontWeight:800,letterSpacing:"-0.02em",lineHeight:1.2,margin:"0 0 12px"}}>Track all seven.<br/>Focus on <span style={{color:"#D4A84B"}}>three</span>.</h2><p style={{fontSize:14,color:"#444",lineHeight:1.7,margin:"0 0 20px"}}>You set a mission for each pillar. You choose 3 to pour your energy into. The rest stay on your radar — visible but waiting. When priorities shift, you rotate.</p><div style={{display:"flex",flexWrap:"wrap",gap:6}}>{PILLARS.map((p,i)=>{const Icon=p.Icon;return(<div key={i} style={{display:"flex",alignItems:"center",gap:7,padding:"8px 14px 8px 10px",background:`${p.hex}08`,border:`1px solid ${p.hex}18`,borderRadius:10}}><Icon size={14} color={p.hex} strokeWidth={1.8}/><span style={{fontSize:12,fontWeight:600,color:p.hex}}>{p.name}</span></div>);})}</div><div style={{height:1,background:"rgba(255,255,255,0.03)",marginTop:24}}/></div>
-{/* 8. LIFE AUDIT */}
-<div ref={auditRef} style={{padding:"28px 0 44px"}}><div style={{fontSize:10,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.15em",marginBottom:8}}>FREE LIFE AUDIT</div><h2 style={{fontSize:26,fontWeight:800,letterSpacing:"-0.02em",lineHeight:1.2,margin:"0 0 12px"}}>See where you <span style={{color:"#D4A84B",fontStyle:"italic"}}>actually</span> stand.</h2><p style={{fontSize:14,color:"#444",lineHeight:1.7,margin:"0 0 24px"}}>Rate yourself honestly across all 7 pillars. Get your personalised radar chart. Takes 2 minutes.</p>{!auditStarted&&<div onClick={startAudit} style={{padding:"16px 0",borderRadius:14,background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.06)",fontSize:15,fontWeight:700,color:"#fff",textAlign:"center",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>Take the Audit <ArrowRight size={16} strokeWidth={2.5}/></div>}{auditStarted&&!emailGated&&!showResults&&<QuestionScreen pillar={PILLARS[currentPillar]} pillarIdx={currentPillar} answers={answers} setAnswers={setAnswers} total={7} onNext={()=>{if(currentPillar===6)setEmailGated(true);else setCurrentPillar(currentPillar+1);}} onBack={()=>setCurrentPillar(Math.max(0,currentPillar-1))}/>}{emailGated&&!showResults&&(<div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:20,padding:"20px 0"}}><div style={{width:64,height:64,borderRadius:18,background:"rgba(212,168,75,0.1)",border:"1px solid rgba(212,168,75,0.2)",display:"flex",alignItems:"center",justifyContent:"center"}}><Check size={28} color="#D4A84B" strokeWidth={2}/></div><div style={{textAlign:"center"}}><div style={{fontSize:20,fontWeight:800,color:"#fff",marginBottom:6}}>Audit complete.</div><div style={{fontSize:14,color:"#555",lineHeight:1.6,maxWidth:360}}>Your personalised radar chart is ready. Enter your email below to unlock your results and join the Founding 100.</div></div><div style={{width:"100%",background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.05)",borderRadius:16,padding:"20px 16px"}}><EmailCapture variant="gate" onSubmit={async(email)=>{await subscribe(email);setShowResults(true);}} submitted={submitted}/></div><div style={{fontSize:11,color:"#222",textAlign:"center"}}>Already subscribed? Use the same email again to unlock.</div></div>)}{showResults&&<ResultsScreen scores={scores} onSubmit={subscribe} submitted={submitted}/>}</div>
-{/* FOOTER */}
-<div style={{padding:"24px 0 40px",borderTop:"1px solid rgba(255,255,255,0.03)",textAlign:"center"}}><div style={{fontSize:16,fontWeight:800,letterSpacing:"-0.04em",color:"#fff",marginBottom:4}}>MISOGI</div><div style={{fontSize:11,color:"#1A1A1A"}}>Focus. Sacrifice. Grow.</div></div>
-</div></div>);}
+/* ─── Section Divider ─── */
+function SectionDivider() {
+  return <div style={{height:1,background:"rgba(255,255,255,0.03)",margin:"0"}} />;
+}
+
+/* ─── Red Dot (Japan symbol) ─── */
+function RedDot({ size = 48 }) {
+  return (
+    <div style={{
+      width: size, height: size, borderRadius: "50%",
+      background: "radial-gradient(circle at 40% 40%, #E84040, #B02020)",
+      boxShadow: "0 0 30px rgba(232,64,64,0.2), 0 0 60px rgba(232,64,64,0.08)",
+      flexShrink: 0,
+    }} />
+  );
+}
+
+export default function MisogiFoundingPage(){
+  const[submitted,setSubmitted]=useState(false);
+  const[auditStarted,setAuditStarted]=useState(false);
+  const[currentPillar,setCurrentPillar]=useState(0);
+  const[answers,setAnswers]=useState(PILLARS.map(p=>p.questions.map(()=>0)));
+  const[showResults,setShowResults]=useState(false);
+  const[emailGated,setEmailGated]=useState(false);
+  const[heroShow,setHeroShow]=useState(false);
+  const auditRef=useRef(null);
+  useEffect(()=>{setTimeout(()=>setHeroShow(true),100);},[]);
+  const scores=answers.map(a=>{const avg=a.reduce((x,y)=>x+y,0)/a.length;return Math.round(avg*20)/10;});
+
+  const subscribe=async(email)=>{
+    const res=await fetch("/api/subscribe",{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({email})});
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok)throw new Error(data?.error||"Subscription failed. Please try again.");
+    setSubmitted(true);
+  };
+
+  const startAudit=()=>{
+    setAuditStarted(true);
+    setTimeout(()=>auditRef.current?.scrollIntoView({behavior:"smooth",block:"start"}),50);
+  };
+
+return(
+<div style={{minHeight:"100vh",background:"#030303",fontFamily:"'Outfit',sans-serif",color:"#fff"}}>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>{`@keyframes fadeUp{from{opacity:0;transform:translateY(20px);}to{opacity:1;transform:translateY(0);}}.fade-up{animation:fadeUp 0.8s ease-out forwards;opacity:0;}`}</style>
+<div style={{maxWidth:560,margin:"0 auto",padding:"0 24px"}}>
+
+{/* ═══ NAV ═══ */}
+<div style={{display:"flex",alignItems:"center",padding:"32px 0 0"}}>
+  <div style={{display:"flex",alignItems:"center",gap:8}}>
+    <span style={{fontSize:18,fontWeight:800,letterSpacing:"-0.04em"}}>MISOGI</span>
+    <span style={{fontSize:10,color:"#D4A84B",fontWeight:600,opacity:0.4}}>禊</span>
+  </div>
+</div>
+
+{/* ═══ TASK 1: HERO ═══ */}
+<div style={{padding:"48px 0 32px",opacity:heroShow?1:0,transition:"opacity 0.8s"}}>
+  <div style={{textAlign:"center",marginBottom:28}}>
+    <div className="fade-up" style={{animationDelay:"0.2s"}}>
+      <div style={{display:"inline-flex",alignItems:"center",gap:6,padding:"5px 14px",background:"rgba(212,168,75,0.08)",border:"1px solid rgba(212,168,75,0.15)",borderRadius:20,marginBottom:16}}>
+        <Crown size={12} color="#D4A84B" strokeWidth={2}/>
+        <span style={{fontSize:11,fontWeight:700,color:"#D4A84B",letterSpacing:"0.08em"}}>FOUNDING CHALLENGERS</span>
+      </div>
+    </div>
+    <h1 className="fade-up" style={{fontSize:42,fontWeight:800,letterSpacing:"-0.03em",lineHeight:1.12,margin:"0 0 18px",animationDelay:"0.4s"}}>
+      Do one thing this year<br/>that changes your life.
+    </h1>
+    <p className="fade-up" style={{fontSize:16,color:"#888",lineHeight:1.7,margin:"0 auto 12px",maxWidth:440,animationDelay:"0.6s"}}>
+      A Misogi is a challenge so difficult it forces you to become someone new.
+    </p>
+    <p className="fade-up" style={{fontSize:14,color:"#555",lineHeight:1.7,margin:"0 auto 0",maxWidth:440,animationDelay:"0.75s"}}>
+      The Misogi app helps you choose your challenge, commit to it, and complete it within 365 days.
+    </p>
+  </div>
+  <div className="fade-up" style={{animationDelay:"0.9s"}}>
+    <EmailCapture variant="hero" onSubmit={subscribe} submitted={submitted}/>
+  </div>
+</div>
+
+<SectionDivider/>
+
+{/* ═══ TASK 2: PROBLEM SECTION ═══ */}
+<div style={{padding:"48px 0 40px"}}>
+  <h2 style={{fontSize:28,fontWeight:800,letterSpacing:"-0.02em",lineHeight:1.2,margin:"0 0 28px",maxWidth:440}}>
+    Most people never do the thing that could change their life.
+  </h2>
+  <div style={{fontSize:16,color:"#888",lineHeight:1.9,marginBottom:24}}>
+    People dream about doing something big.
+  </div>
+  <div style={{display:"flex",flexDirection:"column",gap:6,marginBottom:28,paddingLeft:2}}>
+    {["Running an ultra marathon.","Climbing a mountain.","Starting a company.","Writing a book."].map((line,i) => (
+      <div key={i} style={{fontSize:15,color:"#666",lineHeight:1.6,paddingLeft:16,borderLeft:"2px solid rgba(212,168,75,0.15)"}}>
+        {line}
+      </div>
+    ))}
+  </div>
+  <div style={{display:"flex",flexDirection:"column",gap:12,marginBottom:0}}>
+    <div style={{fontSize:16,color:"#888",lineHeight:1.8}}>But comfort wins.</div>
+    <div style={{fontSize:16,color:"#666",lineHeight:1.8}}>Years pass.</div>
+    <div style={{fontSize:16,color:"#555",lineHeight:1.8}}>Nothing changes.</div>
+    <div style={{fontSize:18,fontWeight:700,color:"#D4A84B",lineHeight:1.8,marginTop:8}}>
+      Misogi exists to break that cycle.
+    </div>
+  </div>
+</div>
+
+<SectionDivider/>
+
+{/* ═══ TASK 3: MISOGI PHILOSOPHY ═══ */}
+<div style={{padding:"48px 0 40px"}}>
+  <div style={{display:"flex",alignItems:"center",gap:14,marginBottom:24}}>
+    <RedDot size={40} />
+    <h2 style={{fontSize:28,fontWeight:800,letterSpacing:"-0.02em",lineHeight:1.2,margin:0}}>
+      What is a Misogi?
+    </h2>
+  </div>
+
+  <div style={{display:"flex",flexDirection:"column",gap:14,marginBottom:32}}>
+    <div style={{fontSize:16,color:"#888",lineHeight:1.8}}>
+      In Japanese tradition, a Misogi is a challenge so difficult that success isn't guaranteed.
+    </div>
+    <div style={{fontSize:16,color:"#777",lineHeight:1.8}}>
+      It pushes you beyond comfort.
+    </div>
+    <div style={{fontSize:16,color:"#777",lineHeight:1.8}}>
+      Beyond excuses.
+    </div>
+    <div style={{fontSize:16,color:"#777",lineHeight:1.8}}>
+      Beyond who you currently are.
+    </div>
+    <div style={{fontSize:16,color:"#999",lineHeight:1.8,marginTop:4}}>
+      If you succeed, you don't just complete a challenge.
+    </div>
+    <div style={{fontSize:16,color:"#ccc",fontWeight:600,lineHeight:1.8}}>
+      You become someone else.
+    </div>
+  </div>
+
+  {/* Quote block */}
+  <div style={{
+    padding:"24px 28px",
+    background:"rgba(232,64,64,0.04)",
+    border:"1px solid rgba(232,64,64,0.12)",
+    borderLeft:"3px solid rgba(232,64,64,0.4)",
+    borderRadius:12,
+  }}>
+    <div style={{fontSize:20,fontWeight:700,color:"#fff",lineHeight:1.7,letterSpacing:"-0.01em"}}>
+      One challenge.<br/>
+      One year.<br/>
+      A new identity.
+    </div>
+  </div>
+</div>
+
+<SectionDivider/>
+
+{/* ═══ TASK 4: TRANSFORMATION EXAMPLES ═══ */}
+<div style={{padding:"48px 0 40px"}}>
+  <h2 style={{fontSize:28,fontWeight:800,letterSpacing:"-0.02em",lineHeight:1.2,margin:"0 0 24px"}}>
+    What could your Misogi be?
+  </h2>
+  <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10,marginBottom:24}}>
+    {MISOGI_EXAMPLES.map((ex,i) => {
+      const Icon = ex.Icon;
+      return (
+        <div key={i} style={{
+          display:"flex",alignItems:"center",gap:10,
+          padding:"14px 16px",
+          background:"rgba(255,255,255,0.02)",
+          border:"1px solid rgba(255,255,255,0.05)",
+          borderRadius:12,
+        }}>
+          <div style={{
+            width:32,height:32,borderRadius:9,flexShrink:0,
+            background:"rgba(212,168,75,0.08)",
+            border:"1px solid rgba(212,168,75,0.12)",
+            display:"flex",alignItems:"center",justifyContent:"center",
+          }}>
+            <Icon size={15} color="#D4A84B" strokeWidth={1.8}/>
+          </div>
+          <span style={{fontSize:13,fontWeight:600,color:"#ccc",lineHeight:1.3}}>{ex.title}</span>
+        </div>
+      );
+    })}
+  </div>
+  <div style={{fontSize:14,color:"#555",lineHeight:1.7,fontStyle:"italic"}}>
+    A Misogi should feel almost impossible when you start.<br/>
+    <span style={{color:"#888",fontWeight:600,fontStyle:"normal"}}>That is the point.</span>
+  </div>
+</div>
+
+<SectionDivider/>
+
+{/* ═══ TASK 5: HOW MISOGI WORKS ═══ */}
+<div style={{padding:"48px 0 40px"}}>
+  <div style={{fontSize:10,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.15em",marginBottom:8}}>THE PROCESS</div>
+  <h2 style={{fontSize:28,fontWeight:800,letterSpacing:"-0.02em",lineHeight:1.2,margin:"0 0 28px"}}>
+    How Misogi works
+  </h2>
+  <div style={{display:"flex",flexDirection:"column",gap:0}}>
+    {[
+      {step:"1",title:"Choose your Misogi",desc:"Define the challenge that will shape your year."},
+      {step:"2",title:"Commit publicly",desc:"Declare your challenge and join the community."},
+      {step:"3",title:"Train and prepare",desc:"Track progress and stay accountable."},
+      {step:"4",title:"Complete it within 365 days",desc:"Success isn't guaranteed. But transformation is."},
+    ].map((s,i) => (
+      <div key={i} style={{
+        display:"flex",gap:16,padding:"20px 0",
+        borderBottom:i<3?"1px solid rgba(255,255,255,0.03)":"none",
+      }}>
+        <div style={{
+          width:36,height:36,borderRadius:10,flexShrink:0,
+          background:i===3?"rgba(212,168,75,0.12)":"rgba(255,255,255,0.03)",
+          border:i===3?"1px solid rgba(212,168,75,0.25)":"1px solid rgba(255,255,255,0.05)",
+          display:"flex",alignItems:"center",justifyContent:"center",
+          fontSize:15,fontWeight:800,
+          color:i===3?"#D4A84B":"#555",
+          fontFamily:"'JetBrains Mono',monospace",
+        }}>{s.step}</div>
+        <div>
+          <div style={{fontSize:16,fontWeight:700,color:"#fff",marginBottom:4}}>{s.title}</div>
+          <div style={{fontSize:13,color:"#555",lineHeight:1.6}}>{s.desc}</div>
+        </div>
+      </div>
+    ))}
+  </div>
+</div>
+
+<SectionDivider/>
+
+{/* ═══ TASK 6: RADAR SYSTEM EXPLANATION ═══ */}
+<div style={{padding:"48px 0 40px"}}>
+  <div style={{fontSize:10,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.15em",marginBottom:8}}>THE PRODUCT</div>
+  <h2 style={{fontSize:28,fontWeight:800,letterSpacing:"-0.02em",lineHeight:1.2,margin:"0 0 24px"}}>
+    Focus on what matters most.
+  </h2>
+
+  <div style={{display:"flex",flexDirection:"column",gap:14,marginBottom:28}}>
+    <div style={{fontSize:15,color:"#888",lineHeight:1.8}}>
+      Most productivity apps try to help people do more.
+    </div>
+    <div style={{fontSize:15,color:"#888",lineHeight:1.8}}>
+      Misogi does the opposite.
+    </div>
+    <div style={{fontSize:15,color:"#999",lineHeight:1.8,fontWeight:500}}>
+      It helps you focus on what matters most right now.
+    </div>
+  </div>
+
+  <div style={{display:"flex",justifyContent:"center",marginBottom:24}}>
+    <BreathingRadar size={240}/>
+  </div>
+
+  <div style={{display:"flex",flexDirection:"column",gap:14}}>
+    <div style={{fontSize:15,color:"#888",lineHeight:1.8}}>
+      The Misogi radar visualises the key pillars of your life.
+    </div>
+    <div style={{fontSize:15,color:"#888",lineHeight:1.8}}>
+      You can only actively push forward <span style={{color:"#D4A84B",fontWeight:700}}>three goals</span> at a time.
+    </div>
+    <div style={{fontSize:15,color:"#888",lineHeight:1.8}}>
+      This forces focus and intentional sacrifice.
+    </div>
+    <div style={{fontSize:15,color:"#999",lineHeight:1.8}}>
+      At the same time, the radar ensures you never lose sight of the bigger picture.
+    </div>
+  </div>
+</div>
+
+<SectionDivider/>
+
+{/* ═══ TASK 8: FOUNDER STORY ═══ */}
+<div style={{padding:"48px 0 40px"}}>
+  <h2 style={{fontSize:28,fontWeight:800,letterSpacing:"-0.02em",lineHeight:1.2,margin:"0 0 24px"}}>
+    Why we built Misogi
+  </h2>
+  <div style={{display:"flex",flexDirection:"column",gap:14}}>
+    <div style={{fontSize:15,color:"#888",lineHeight:1.8}}>
+      Most productivity tools optimise small habits.
+    </div>
+    <div style={{fontSize:15,color:"#888",lineHeight:1.8}}>
+      But life is changed by big decisions.
+    </div>
+    <div style={{fontSize:15,color:"#999",lineHeight:1.8,fontWeight:500}}>
+      Misogi was created around a simple idea.
+    </div>
+    <div style={{fontSize:16,color:"#ccc",lineHeight:1.8,fontWeight:600,fontStyle:"italic",padding:"16px 20px",background:"rgba(255,255,255,0.02)",borderRadius:12,border:"1px solid rgba(255,255,255,0.04)"}}>
+      What if everyone committed to one challenge each year that truly scared them?
+    </div>
+    <div style={{fontSize:15,color:"#888",lineHeight:1.8}}>
+      A challenge big enough that completing it would redefine who they are.
+    </div>
+    <div style={{fontSize:15,color:"#888",lineHeight:1.8}}>
+      The Misogi app exists to help people commit to that challenge and see it through.
+    </div>
+  </div>
+</div>
+
+<SectionDivider/>
+
+{/* ═══ TASK 9: COMMUNITY / SOCIAL PROOF ═══ */}
+<div style={{padding:"48px 0 40px"}}>
+  <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:20}}>
+    <Crown size={20} color="#D4A84B" strokeWidth={1.8}/>
+    <h2 style={{fontSize:28,fontWeight:800,letterSpacing:"-0.02em",lineHeight:1.2,margin:0}}>
+      Join the founding challengers.
+    </h2>
+  </div>
+  <div style={{display:"flex",flexDirection:"column",gap:14,marginBottom:24}}>
+    <div style={{fontSize:15,color:"#888",lineHeight:1.8}}>
+      The first Misogi cohort is forming now.
+    </div>
+    <div style={{fontSize:15,color:"#888",lineHeight:1.8}}>
+      Early members will help shape the culture of the platform and define what it means to complete a Misogi.
+    </div>
+  </div>
+  <EmailCapture variant="community" onSubmit={subscribe} submitted={submitted}/>
+</div>
+
+<SectionDivider/>
+
+{/* ═══ LIFE AUDIT ═══ */}
+<div ref={auditRef} style={{padding:"48px 0 44px"}}>
+  <div style={{fontSize:10,fontWeight:700,color:"#2A2A2A",letterSpacing:"0.15em",marginBottom:8}}>FREE LIFE AUDIT</div>
+  <h2 style={{fontSize:26,fontWeight:800,letterSpacing:"-0.02em",lineHeight:1.2,margin:"0 0 12px"}}>
+    See where you <span style={{color:"#D4A84B",fontStyle:"italic"}}>actually</span> stand.
+  </h2>
+  <p style={{fontSize:14,color:"#444",lineHeight:1.7,margin:"0 0 24px"}}>
+    Rate yourself honestly across all 7 pillars. Get your personalised radar chart. Takes 2 minutes.
+  </p>
+  {!auditStarted&&<div role="button" onClick={startAudit} style={{padding:"16px 0",borderRadius:14,background:"rgba(255,255,255,0.03)",border:"1px solid rgba(255,255,255,0.06)",fontSize:15,fontWeight:700,color:"#fff",textAlign:"center",cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center",gap:8}}>Take the Audit <ArrowRight size={16} strokeWidth={2.5}/></div>}
+  {auditStarted&&!emailGated&&!showResults&&<QuestionScreen pillar={PILLARS[currentPillar]} pillarIdx={currentPillar} answers={answers} setAnswers={setAnswers} total={7} onNext={()=>{if(currentPillar===6)setEmailGated(true);else setCurrentPillar(currentPillar+1);}} onBack={()=>setCurrentPillar(Math.max(0,currentPillar-1))}/>}
+  {emailGated&&!showResults&&(
+    <div style={{display:"flex",flexDirection:"column",alignItems:"center",gap:20,padding:"20px 0"}}>
+      <div style={{width:64,height:64,borderRadius:18,background:"rgba(212,168,75,0.1)",border:"1px solid rgba(212,168,75,0.2)",display:"flex",alignItems:"center",justifyContent:"center"}}><Check size={28} color="#D4A84B" strokeWidth={2}/></div>
+      <div style={{textAlign:"center"}}><div style={{fontSize:20,fontWeight:800,color:"#fff",marginBottom:6}}>Audit complete.</div><div style={{fontSize:14,color:"#555",lineHeight:1.6,maxWidth:360}}>Your personalised radar chart is ready. Enter your email below to unlock your results and join the Founding Challengers.</div></div>
+      <div style={{width:"100%",background:"rgba(255,255,255,0.02)",border:"1px solid rgba(255,255,255,0.05)",borderRadius:16,padding:"20px 16px"}}><EmailCapture variant="gate" onSubmit={async(email)=>{await subscribe(email);setShowResults(true);}} submitted={submitted}/></div>
+      <div style={{fontSize:11,color:"#222",textAlign:"center"}}>Already subscribed? Use the same email again to unlock.</div>
+    </div>
+  )}
+  {showResults&&<ResultsScreen scores={scores} onSubmit={subscribe} submitted={submitted}/>}
+</div>
+
+<SectionDivider/>
+
+{/* ═══ TASK 10: FINAL CTA ═══ */}
+<div style={{padding:"56px 0 48px",textAlign:"center"}}>
+  <h2 style={{fontSize:34,fontWeight:800,letterSpacing:"-0.03em",lineHeight:1.15,margin:"0 0 16px"}}>
+    Your Misogi starts now.
+  </h2>
+  <div style={{fontSize:16,color:"#888",lineHeight:1.7,marginBottom:8}}>
+    One challenge could change your life.
+  </div>
+  <div style={{fontSize:15,color:"#555",lineHeight:1.7,marginBottom:28}}>
+    The only question is whether you commit.
+  </div>
+  <EmailCapture variant="final" onSubmit={subscribe} submitted={submitted}/>
+</div>
+
+{/* ═══ FOOTER ═══ */}
+<div style={{padding:"24px 0 40px",borderTop:"1px solid rgba(255,255,255,0.03)",textAlign:"center"}}>
+  <div style={{fontSize:16,fontWeight:800,letterSpacing:"-0.04em",color:"#fff",marginBottom:4}}>MISOGI</div>
+  <div style={{fontSize:11,color:"#1A1A1A"}}>One challenge. One year. A new you.</div>
+</div>
+
+</div>
+</div>
+);}
